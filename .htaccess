@@ -1,0 +1,15 @@
+# SheFit Club – Redirections HTML → PHP
+# Ce fichier redirige les pages statiques .html vers leurs équivalents PHP
+# afin que la session PHP (login/logout) soit correctement gérée.
+
+Options -Indexes
+RewriteEngine On
+
+# Rediriger membership.html → membership.php (nécessaire pour le mini-panier JS)
+RewriteRule ^membership\.html$ membership.php [R=301,L]
+
+# Rediriger les autres pages statiques si elles existent encore
+RewriteRule ^home\.html$      home.php      [R=301,L]
+RewriteRule ^classes\.html$   classes.php   [R=301,L]
+RewriteRule ^trainers\.html$  trainers.php  [R=301,L]
+RewriteRule ^contact\.html$   contact.php   [R=301,L]

@@ -63,6 +63,12 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
     <p>View and manage all membership plans. Add new plans or edit existing ones.</p>
 </header>
 
+<div style="display:flex;">
+
+<?php require '../includes/admin_sidebar.php'; ?>
+
+<main class="main-dash" style="flex:1;padding:20px;">
+
 <?php if ($success): ?><p style="color:green;font-weight:bold;text-align:center;"><?= htmlspecialchars($success) ?></p><?php endif; ?>
 <?php if ($error):   ?><p style="color:red;font-weight:bold;text-align:center;"><?= htmlspecialchars($error) ?></p><?php endif; ?>
 
@@ -149,6 +155,9 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 <p class="return-plan">
     <a href="dashboard.php">Return to Dashboard</a>
 </p>
+
+</main>
+</div>
 
 </body>
 </html>

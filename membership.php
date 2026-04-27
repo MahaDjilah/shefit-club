@@ -261,5 +261,78 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 </footer>
 
 <script src="script.js"></script>
+<script>
+/*
+ * CORRECTIF BACKEND – membership.php
+ *
+ * 1) Le formulaire #registerForm doit être soumis en POST vers membership.php
+ *    pour créer le compte en base de données.
+ *    Le script.js intercepte le submit et appelle alert() sans envoyer de données.
+ *    Solution : remplacer le nœud formulaire pour supprimer les listeners JS,
+ *    puis rattacher uniquement la validation visuelle sans preventDefault final.
+ *
+ * 2) Le mini-panier utilise REGISTER_PAGE_URL = "membership.html" (fichier statique).
+ *    Sur membership.php le chemin ne se termine pas par ".html", donc
+ *    proceedToRegister() redirige vers membership.html au lieu de faire défiler.
+ *    Solution : surcharger REGISTER_PAGE_URL et proceedToRegister() pour qu'ils
+ *    pointent vers membership.php.
+ */
+
+/* ── Correctif 2 : mini-panier ── */
+if (typeof REGISTER_PAGE_URL !== 'undefined') {
+    // Redéfinir la constante et la fonction qui l'utilise
+    window.REGISTER_PAGE_URL_FIXED = 'membership.php';
+
+    window.proceedToRegister = function () {
+        var savedPlan = sessionStorage.getItem('selectedPlan');
+        if (!savedPlan) return;
+
+        var currentPath = window.location.pathname;
+        var isOnRegisterPage = currentPath.endsWith('membership.php') ||
+                               currentPath.endsWith('membership');
+
+        if (isOnRegisterPage) {
+            var plan = JSON.parse(savedPlan);
+            var radioButton = document.querySelector('input[name="plan"][value="' + plan.value + '"]');
+            if (radioButton) radioButton.checked = true;
+            var registerSection = document.getElementById('membership-register-section');
+            if (registerSection) registerSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            window.location.href = 'membership.php#membership-register-section';
+        }
+    };
+}
+
+/* ── Correctif 1 : formulaire d'inscription ── */
+(function () {
+    var form = document.getElementById('registerForm');
+    if (!form) return;
+
+    // Cloner pour retirer tous les listeners attachés par script.js
+    var freshForm = form.cloneNode(true);
+    form.parentNode.replaceChild(freshForm, form);
+
+    freshForm.addEventListener('submit', function (e) {
+        // Validation côté client minimale (PHP re-valide de toute façon)
+        var nameVal  = (freshForm.querySelector('#name')  || {value:''}).value.trim();
+        var emailVal = (freshForm.querySelector('#email') || {value:''}).value.trim();
+        var planVal  = freshForm.querySelector('input[name="plan"]:checked');
+        var termsVal = freshForm.querySelector('input[type="checkbox"]');
+
+        var ok = true;
+
+        if (!/^[A-Za-z\s]{3,}$/.test(nameVal))           { ok = false; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { ok = false; }
+        if (!planVal)                                       { ok = false; }
+        if (termsVal && !termsVal.checked)                  { ok = false; }
+
+        if (!ok) {
+            e.preventDefault(); // Bloquer l'envoi invalide
+            return;
+        }
+        // Envoi natif POST → membership.php → PHP crée le compte en BDD
+    });
+})();
+</script>
 </body>
 </html>

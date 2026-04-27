@@ -55,31 +55,7 @@ $max = max(array_values($planCounts)) ?: 1;
 
 <div style="display: flex;">
 
-<!-- Sidebar – identique à ton HTML -->
-<aside style="width: 200px; padding: 10px;" class="nav-dashboard">
-    <nav>
-        <h3>Menu</h3>
-        <ul>
-            <li><a href="dashboard.php">Members</a></li>
-            <li><a href="classes.php">Classes</a></li>
-            <li><a href="#">Subscriptions</a></li>
-            <li><a href="#">Trainers</a></li>
-            <li><a href="#">Orders</a></li>
-            <li><a href="plans.php">Plans</a></li>
-            <li><a href="messages.php">
-                Messages
-                <?php if ($unread > 0): ?>
-                    <span style="background:red;color:white;border-radius:50%;padding:1px 6px;font-size:11px;margin-left:4px;">
-                        <?= $unread ?>
-                    </span>
-                <?php endif; ?>
-            </a></li>
-            <li><a href="reports.php">Reports</a></li>
-            <li><a href="../home.php">View Site</a></li>
-            <li><a href="logout.php" id="logout-dash">Logout</a></li>
-        </ul>
-    </nav>
-</aside>
+<?php require '../includes/admin_sidebar.php'; ?>
 
 <main class="main-dash">
 
