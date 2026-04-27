@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SheFit Club - Manage Membership Plans</title>
+    <link rel="icon" href="images/cropped_circle_image (1).png">
+    <link rel="stylesheet" href="style.project.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Roboto+Slab:wght@100..900&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="plan-head">
+<h1>Membership Plans Management</h1>
+<p>View and manage all membership plans. Add new plans or edit existing ones.</p>
+</header>
+
+<!-- existing plans table -->
+<section class="table-plan">
+<h2>Existing Plans</h2>
+
+<table border="1">
+<thead>
+<tr>
+<th>Plan Name</th>
+<th>Price (DZD)</th>
+<th>Duration</th>
+<th>Features</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Bronze</td>
+<td>3500</td>
+<td>Monthly</td>
+<td>Basic gym access, 2 classes/week</td>
+<td>
+<button type="button">Edit</button>
+<button type="button">Delete</button>
+</td>
+</tr>
+<tr>
+<td>Silver</td>
+<td>7000</td>
+<td>Monthly</td>
+<td>Unlimited classes, swimming pool access</td>
+<td>
+<button type="button">Edit</button>
+<button type="button">Delete</button>
+</td>
+</tr>
+<tr>
+<td>Gold</td>
+<td>12000</td>
+<td>Monthly</td>
+<td>All facilities, personal training, premium benefits</td>
+<td>
+<button type="button">Edit</button>
+<button type="button">Delete</button>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<!--Form new plan -->
+<section class="new-plan">
+<h2>Add New Plan</h2>
+
+<form action="#" >
+
+<label for="plan-name">Plan Name:</label><br>
+<input type="text" id="plan-name" name="plan-name" required><br><br>
+
+<label for="price">Price (DZD):</label><br>
+<input type="number" id="price" name="price" required><br><br>
+
+<label for="duration">Duration:</label><br>
+<input type="text" id="duration" name="duration" placeholder="Monthly/Quarterly/Annual" required><br><br>
+
+<label for="description">Description:</label><br>
+<textarea id="description" name="description" rows="4" cols="50" placeholder="Describe the plan features"></textarea><br><br>
+
+<input type="submit" value="Add Plan">
+
+</form>
+</section>
+
+<p class="return-plan">
+<a href="admin-dashboard.html"> Return to Dashboard </a>
+</p>
+
+</body>
+</html>

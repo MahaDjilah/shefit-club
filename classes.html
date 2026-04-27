@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SheFit Club Classes </title>
+    <link rel="icon" href="images/cropped_circle_image.png">
+    <link rel="stylesheet" href="style.project.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Roboto+Slab:wght@100..900&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Slab:wght@100..900&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bad+Script&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto+Slab:wght@100..900&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+  </head>
+
+<body>
+
+    <!--NAVIGATION BAR-->
+ <section id="navigation">
+    <ul>
+     <li> <a href="home.html">Home</a> </li>
+     <li> <a href="classes.html" class="active">Classes</a> </li>
+     <li> <a href="membership.html">Membership</a> </li>
+     <li> <a href="trainers.html">Trainers</a> </li>
+    <li> <a href="contact.html">Contact</a> </li>
+    </ul>
+ </section>
+
+
+  <!-- PAGE HEADER -->
+<header class="classes">
+    <h1>SheFit Club Classes</h1>
+    <p>
+        Explore all the fitness classes available at SheFit Club. 
+        Check the schedule, trainers, and difficulty levels to find the class 
+        that fits your fitness journey.
+    </p>
+</header>
+
+
+<!-- Filters -->
+<section class="difficulty">
+
+    <h2>Filter Classes</h2>
+
+    
+
+    
+    <div class="filters">
+    <div class="filter-item">
+     <label for="day">Day:</label>
+     <select id="day">
+         <option>All Days</option>
+        <option>Monday</option>
+        <option>Tuesday</option>
+        <option>Wednesday</option>
+        <option>Thursday</option>
+        <option>Friday</option>
+         </select>
+        </div>
+
+   <div class="filter-item">
+   <label for="level">Difficulty:</label>
+    <select id="level">
+      <option>All Levels</option>
+        <option>Beginner</option>
+       <option>Intermediate</option>
+      <option>Advanced</option>
+      </select>
+      </div>
+
+
+      <div class="filter-item">
+   <label for="trainer">Trainer:</label>
+    <select id="trainer">
+      <option>All Trainers</option>
+        <option>Sarah.J</option>
+       <option>Maria.L</option>
+      <option>Amel.D</option>
+      <option>Lamia.S</option>
+      <option>Sofia.M</option>
+      <option>Farah.B</option>
+      </select>
+      </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- CLASSES TABLE -->
+<section class="classes-table">
+
+<table>
+
+<caption>Weekly Gym Classes Schedule</caption>
+
+
+<thead>
+<tr>
+<th>Class Name</th>
+<th>Trainer</th>
+<th>Day</th>
+<th>Time</th>
+<th>Duration</th>
+<th>Difficulty Level</th>
+</tr>
+</thead>
+
+<tbody id="classes-tbody">
+
+<tr>
+<td><a href="classes.html">Pilates Core</a></td>
+<td>Sarah.J</td>
+<td>Monday</td>
+<td>10:00 AM</td>
+<td>45 min</td>
+<td><span class="difficulty beginner">Beginner</span></td>
+</tr>
+
+<tr>
+<td><a href="classes.html">Kickboxing Fitness</a></td>
+<td>Maria.L</td>
+<td>Tuesday</td>
+<td>6:00 PM</td>
+<td>50 min</td>
+<td><span class="difficulty intermediate">Intermediate</span></td>
+</tr>
+
+<tr>
+<td><a href="classes.html">Prenatal Yoga</a></td>
+<td>Amel.D</td>
+<td>Wednesday</td>
+<td>11:00 AM</td>
+<td>40 min</td>
+<td><span class="difficulty beginner">Beginner</span></td>
+</tr>
+
+<tr>
+<td><a href="classes.html">Aqua Fitness</a></td>
+<td>Lamia.S</td>
+<td>Thursday</td>
+<td>5:00 PM</td>
+<td>45 min</td>
+<td><span class="difficulty beginner">Beginner</span></td>
+</tr>
+
+<tr>
+<td><a href="classes.html">Paddle Training</a></td>
+<td>Sofia.M</td>
+<td>Friday</td>
+<td>4:00 PM</td>
+<td>60 min</td>
+<td><span class="difficulty intermediate">Intermediate</span></td>
+</tr>
+
+<tr>
+<td><a href="classes.html">Strength Training</a></td>
+<td>Farah.B</td>
+<td>Saturday</td>
+<td>10:00 AM</td>
+<td>50 min</td>
+<td><span class="difficulty advanced">Advanced</span></td>
+</tr>
+
+</tbody>
+
+
+
+</table>
+
+</section>
+
+<!--footer-->
+<footer>
+  <div class="footer-sections">
+    <div class="contact">
+      <h3>Our Contact info</h3>
+      <p>Constantine-Zouaghi Slimane Rue 255</p>
+      <p>Tel: 0552789566</p>
+      <p><a href="mailto: Shefitclub@gmail.com">Shefitclub@gmail.com</a></p>
+    </div>
+
+    <div class="contact">
+      <h3>Follow Us</h3>
+      <a href="https://www.facebook.com/">Facebook</a>
+      <a href="https://www.instagram.com/">Instagram</a>
+      <a href="https://www.tiktok.com/">Tiktok</a>
+    </div>
+
+    <div class="contact">
+      <h3>Opening Hours</h3>
+      <p>Sunday - Thursday 8:00 AM - 11:00 PM</p>
+      <p>Friday 10:00 AM - 11:00 PM</p>
+      <p>Saturday 11:00 AM - 9:00 PM</p>
+    </div>
+  </div>
+
+  <hr>
+  <p>&copy; 2026 SheFit Club. All rights reserved.</p>
+  <p><a href="admin-login.html">Admin Login</a></p>
+</footer>
+
+<script src="script.js"></script>
+<script src="admin-script.js"></script>
+
+</body>
+</html>
+

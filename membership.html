@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SheFit Club Membership</title>
+    <link rel="icon" href="images/cropped_circle_image.png">
+    <link rel="stylesheet" href="style.project.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Roboto+Slab:wght@100..900&family=Tangerine:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+
+
+    <!--NAVIGATION BAR-->
+ <section id="navigation">
+    <ul>
+     <li> <a href="home.html">Home</a> </li>
+     <li> <a href="classes.html">Classes</a> </li>
+     <li> <a href="membership.html" class="active">Membership</a> </li>
+     <li> <a href="trainers.html">Trainers</a> </li>
+    <li> <a href="contact.html">Contact</a> </li>
+    </ul>
+ </section>
+
+
+ <header class="membership-header">
+  <h1>SheFit Club Membership Plans</h1>
+  <p>
+    Choose the membership plan that best fits your lifestyle and fitness goals.
+    All members enjoy a supportive women-only environment, modern equipment,
+    and a wide variety of fitness classes.
+  </p>
+</header>
+
+
+
+<section id="membership-plans-section">
+  
+
+  <!-- BRONZE PLAN -->
+  <article class="membership-card bronze-card">
+    <h3>Bronze Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>
+        The Bronze plan is perfect for beginners or members who want flexible access to
+        essential gym facilities. It allows you to start your fitness journey while
+        enjoying the core spaces of SheFit Club.
+      </dd>
+      <dt>Best For</dt>
+      <dd>
+        New members who want to train a few times per week and explore different
+        activities before committing to a long-term membership.
+      </dd>
+    </dl>
+    <ul>
+      <li>Access to the Cardio Room with treadmills, bikes, and ellipticals</li>
+      <li>Access to the Weights Area for basic strength training</li>
+      <li>2 group fitness classes per week (Pilates, Yoga, or Dance)</li>
+      <li>Use of Locker & Shower facilities</li>
+      <li>Free orientation session with a trainer</li>
+    </ul>
+    <div class="membership-price">3500 DZD / month</div>
+  </article>
+
+  <!-- SILVER PLAN -->
+  <article class="membership-card silver-card recommended-card">
+    <h3>Silver Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>
+        The Silver plan is designed for members who train regularly and want
+        more variety in their workouts. It provides broader access to gym
+        facilities and unlimited group classes.
+      </dd>
+      <dt>Best For</dt>
+      <dd>
+        Active members who enjoy group fitness and want the freedom to try
+        different training styles such as Pilates, kickboxing, or pool workouts.
+      </dd>
+    </dl>
+    <ul>
+      <li>Full access to Cardio Room, Weights Area, and Pilates Studio</li>
+      <li>Unlimited group classes including Pilates, Kickboxing, and Yoga</li>
+      <li>Access to the Swimming Pool for cardio and recovery workouts</li>
+      <li>Access to Paddle Area for fun and competitive activities</li>
+      <li>Priority booking for popular group classes</li>
+      <li>Use of Locker & Shower facilities</li>
+    </ul>
+    <div class="membership-price">7000 DZD / month</div>
+  </article>
+
+  <!-- GOLD PLAN -->
+  <article class="membership-card gold-card">
+    <h3>Gold Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>
+        The Gold plan offers the complete SheFit Club experience with unlimited
+        access to all facilities and exclusive member benefits. It is ideal
+        for committed members who want maximum flexibility and premium services.
+      </dd>
+      <dt>Best For</dt>
+      <dd>
+        Members who train frequently and want access to all spaces, advanced
+        classes, and special wellness services throughout the year.
+      </dd>
+    </dl>
+    <ul>
+      <li>Unlimited access to all gym facilities</li>
+      <li>Unlimited group classes including Pilates, Kickboxing, and Aquatic Fitness</li>
+      <li>Access to Pre/Postnatal Fitness Room programs</li>
+      <li>Priority booking for classes and special events</li>
+      <li>Free monthly personal training consultation</li>
+      <li>Discounts at the Fit Bar for healthy snacks and drinks</li>
+      <li>Access to Swimming Pool and Paddle Area anytime</li>
+    </ul>
+    <div class="membership-price">12000 DZD / month</div>
+  </article>
+
+</section>
+
+
+<!-- Mini Cart Sticky -->
+<div id="mini-cart" class="mini-cart" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+</div>
+
+<!-- FORM -->
+
+<section id="membership-register-section">
+  <h2>Register for Membership</h2>
+
+  <form id="registerForm" action="#" method="post">
+
+    <fieldset>
+      <legend>Personal Information</legend>
+
+      <label for="name">Full Name:</label><br>
+      <input type="text" id="name" name="fullname" required>
+      <span class="error" id="nameError"></span>
+      <br><br>
+
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" required>
+      <span class="error" id="emailError"></span>
+      <br><br>
+
+      <label for="phone">Phone Number:</label><br>
+      <input type="tel" id="phone" name="phone">
+      <span class="error" id="phoneError"></span>
+      <br><br>
+
+      <label for="dob">Date of Birth:</label><br>
+      <input type="date" id="dob" name="dob">
+      <span class="error" id="dobError"></span>
+      <br><br>
+
+    </fieldset>
+
+    <fieldset>
+      <legend>Select Your Plan</legend>
+
+      <label>
+        <input type="radio" name="plan" value="bronze"> Bronze Plan
+      </label><br>
+
+      <label>
+        <input type="radio" name="plan" value="silver"> Silver Plan
+      </label><br>
+
+      <label>
+        <input type="radio" name="plan" value="gold"> Gold Plan
+      </label>
+
+      
+      <br>
+      <span class="error" id="planError"></span>
+    </fieldset>
+
+    <fieldset>
+      <legend>Additional Information</legend>
+
+      <label for="message">Fitness Goals:</label><br>
+      <textarea id="message" name="goals" rows="4" cols="40"></textarea>
+    </fieldset>
+
+    <br>
+
+    <label>
+      <input type="checkbox">
+      I agree to the membership terms and conditions
+    </label>
+    <span class="error" id="termsError"></span>
+
+    <br><br>
+
+    <input type="submit" value="Register">
+
+  </form>
+</section>
+
+<section id="membership-payment-section"  class="bck-membership">
+  <h2>Accepted Payment Methods</h2>
+  <p>We accept the following payment methods:</p>
+  <ul>
+    <li>Cash (Payment at the gym reception)</li>
+    <li>CIB Card (Carte Interbancaire)</li>
+    <li>EDAHABIA Card (Algérie Poste)</li>
+    <li>Bank Transfer</li>
+  </ul>
+</section>
+
+
+ <!--footer-->
+<footer>
+  <div class="footer-sections">
+    <div class="contact">
+      <h3>Our Contact info</h3>
+      <p>Constantine-Zouaghi Slimane Rue 255</p>
+      <p>Tel: 0552789566</p>
+      <p><a href="mailto: Shefitclub@gmail.com">Shefitclub@gmail.com</a></p>
+    </div>
+
+    <div class="contact">
+      <h3>Follow Us</h3>
+      <a href="https://www.facebook.com/">Facebook</a>
+      <a href="https://www.instagram.com/">Instagram</a>
+      <a href="https://www.tiktok.com/">Tiktok</a>
+    </div>
+
+    <div class="contact">
+      <h3>Opening Hours</h3>
+      <p>Sunday - Thursday 8:00 AM - 11:00 PM</p>
+      <p>Friday 10:00 AM - 11:00 PM</p>
+      <p>Saturday 11:00 AM - 9:00 PM</p>
+    </div>
+  </div>
+
+  <hr>
+  <p>&copy; 2026 SheFit Club. All rights reserved.</p>
+  <p><a href="admin-login.html">Admin Login</a></p>
+</footer>
+
+
+ <script src="script.js"></script>
+</body>
+</html>
