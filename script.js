@@ -239,7 +239,7 @@ const membershipPlans = {
     gold:   { name: "Gold Plan",   price: "12000 DZD / month", value: "gold"  }
 };
 
-const REGISTER_PAGE_URL = "membership.html";
+const REGISTER_PAGE_URL = "membership.php";
 
 function selectPlan(planKey) {
     const plan = membershipPlans[planKey];
@@ -619,22 +619,8 @@ function initContactForm() {
 
         if (!isNameValid || !isEmailValid || !isSubjectValid || !isMessageValid) return;
 
-        let messages = JSON.parse(localStorage.getItem('contactMessages')) || [];
-        messages.push({
-            id:      Date.now(),
-            date:    new Date().toLocaleString(),
-            name:    nameField.value.trim(),
-            email:   emailField.value.trim(),
-            subject: subjectField.value.trim(),
-            message: messageField.value.trim()
-        });
-        localStorage.setItem('contactMessages', JSON.stringify(messages));
-
-        showSuccessToast();
-        contactForm.reset();
-        [nameField, emailField, subjectField, messageField].forEach(field => {
-            field.style.border = "";
-        });
+        // Soumission réelle vers PHP (base de données)
+        contactForm.submit();
     }
 
     function showSuccessToast() {
@@ -695,8 +681,7 @@ function init() {
                 validateTerms();
 
             if (isValid) {
-                alert("Registration successful!");
-                form.reset();
+                form.submit();
             }
         });
         console.log("✅ Formulaire d'inscription initialisé");

@@ -5,18 +5,25 @@ require 'includes/db.php';
 $success = '';
 $error   = '';
 
-// Messages venant de send_message.php via redirect
-if (isset($_GET['sent'])) {
-    $success = "Thank you! Your message has been sent successfully.";
-}
-if (isset($_GET['error'])) {
-    $msgs = [
-        'name'    => 'Name must be at least 2 characters.',
-        'email'   => 'Invalid email format.',
-        'subject' => 'Subject must be at least 5 characters.',
-        'message' => 'Message must be at least 20 characters.',
-    ];
-    $error = $msgs[$_GET['error']] ?? 'Please fill all fields correctly.';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name    = trim($_POST['name']    ?? '');
+    $email   = trim($_POST['email']   ?? '');
+    $subject = trim($_POST['subject'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+
+    if (strlen($name) < 2) {
+        $error = "Name must be at least 2 characters.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format.";
+    } elseif (strlen($subject) < 5) {
+        $error = "Subject must be at least 5 characters.";
+    } elseif (strlen($message) < 20) {
+        $error = "Message must be at least 20 characters.";
+    } else {
+        $pdo->prepare("INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)")
+            ->execute([$name, $email, $subject, $message]);
+        $success = "Thank you! Your message has been sent successfully.";
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -66,7 +73,7 @@ if (isset($_GET['error'])) {
         <p style="color:red;font-weight:bold;text-align:center;"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
-    <form id="phpContactForm" action="send_message.php" method="POST">
+    <form action="contact.php" method="POST">
 
         <label for="name">Full Name:</label><br>
         <input type="text" id="name" name="name"
@@ -137,19 +144,6 @@ if (isset($_GET['error'])) {
     <p><a href="admin/login.php">Admin Login</a></p>
 </footer>
 
-<!-- CORRECTIF DEFINITIF : bloquer script.js avant qu'il attache son listener -->
-<script>
-// Redéfinir initContactForm (déclarée comme function dans script.js = hoisting)
-// On utilise une astuce : on surcharge DOMContentLoaded pour qu'il s'exécute en premier
-document.addEventListener('DOMContentLoaded', function() {
-    // Ce listener s'exécute APRES celui de script.js (ajouté après)
-    // On clone le formulaire pour supprimer tous les listeners
-    var f = document.getElementById('phpContactForm');
-    if (!f) return;
-    var clone = f.cloneNode(true);
-    f.parentNode.replaceChild(clone, f);
-}, true); // true = phase de capture = s'exécute AVANT les listeners en phase de bouillonnement
-</script>
 <script src="script.js"></script>
 </body>
 </html>
