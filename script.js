@@ -610,32 +610,42 @@ function initContactForm() {
     }
 
     function handleSubmit(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const isNameValid    = validateName();
-        const isEmailValid   = validateEmail();
-        const isSubjectValid = validateSubject();
-        const isMessageValid = validateMessage();
+    const isNameValid    = validateName();
+    const isEmailValid   = validateEmail();
+    const isSubjectValid = validateSubject();
+    const isMessageValid = validateMessage();
 
-        if (!isNameValid || !isEmailValid || !isSubjectValid || !isMessageValid) return;
+    if (!isNameValid || !isEmailValid || !isSubjectValid || !isMessageValid) return;
 
-        let messages = JSON.parse(localStorage.getItem('contactMessages')) || [];
-        messages.push({
-            id:      Date.now(),
-            date:    new Date().toLocaleString(),
-            name:    nameField.value.trim(),
-            email:   emailField.value.trim(),
-            subject: subjectField.value.trim(),
-            message: messageField.value.trim()
-        });
-        localStorage.setItem('contactMessages', JSON.stringify(messages));
+    fetch('contact.php', {
+    method: 'POST',
+    body: new FormData(contactForm)
+})
+.then(() => {
+    // Sauvegarder aussi dans localStorage
+    let messages = JSON.parse(localStorage.getItem('contactMessages')) || [];
+    messages.push({
+        id:      Date.now(),
+        date:    new Date().toLocaleString(),
+        name:    nameField.value.trim(),
+        email:   emailField.value.trim(),
+        subject: subjectField.value.trim(),
+        message: messageField.value.trim()
+    });
+    localStorage.setItem('contactMessages', JSON.stringify(messages));
 
-        showSuccessToast();
-        contactForm.reset();
-        [nameField, emailField, subjectField, messageField].forEach(field => {
-            field.style.border = "";
-        });
-    }
+    showSuccessToast();
+    contactForm.reset();
+    [nameField, emailField, subjectField, messageField].forEach(field => {
+        field.style.border = "";
+    });
+});
+}
+
+
+    
 
     function showSuccessToast() {
         const toast = document.createElement('div');

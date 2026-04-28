@@ -19,6 +19,7 @@ if (isset($_GET['unread'])) {
     $pdo->prepare("UPDATE contact_messages SET read_status=0 WHERE id=?")->execute([(int)$_GET['unread']]);
 }
 
+
 $messages = $pdo->query("SELECT * FROM contact_messages ORDER BY submitted_at DESC")->fetchAll();
 $unread   = $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE read_status=0")->fetchColumn();
 ?>
@@ -70,7 +71,7 @@ $unread   = $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE read_status
                             <td><?= htmlspecialchars($msg['name']) ?></td>
                             <td><?= htmlspecialchars($msg['email']) ?></td>
                             <td><?= htmlspecialchars($msg['subject'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars(substr($msg['message'], 0, 60)) ?>...</td>
+                            <td><?= htmlspecialchars($msg['message']) ?></td>
                             <td>
                                 <?php if ($msg['read_status']): ?>
                                     <span style="color:green;">✔ Read</span>
