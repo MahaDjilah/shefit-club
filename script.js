@@ -721,7 +721,12 @@ function init() {
 
 document.addEventListener("DOMContentLoaded", () => {
     init();            // Partie 1 : Formulaire + Partie 2 : Classes
-    initMembership();  // Partie 3 : Membership Cart
+
+    // Bug fix: only initialize the membership cart on the membership page
+    const currentPage = window.location.pathname;
+    if (currentPage.includes('membership')) {
+        initMembership();  // Partie 3 : Membership Cart
+    }
 
     // Partie 4 : Trainers — uniquement sur la page trainers
     if (document.getElementById("trainer-search") || document.querySelector('.trainers-grid')) {

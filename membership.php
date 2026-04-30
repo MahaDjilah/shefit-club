@@ -5,6 +5,7 @@ require 'includes/db.php';
 $success = '';
 $error          = '';
 $error_password = '';
+$show_toast = isset($_GET['registered']) && $_GET['registered'] === '1';
 
 // ---- Traitement du formulaire ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -62,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$user_id, $planRow['id'], $start, $end]);
 
                 $success = "Registration successful! <a href='login.php'>Login here</a>.";
+                // Redirect to avoid re-submission and trigger toast notification
+                header("Location: membership.php?registered=1");
+                exit;
             }
         }
     }
@@ -93,10 +97,10 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
         <li><a href="trainers.php">Trainers</a></li>
         <li><a href="contact.php">Contact</a></li>
         <?php if (isset($_SESSION['user_id'])): ?>
-            <li><a href="profile.php">My Profile</a></li>
-            <li><a href="logout.php">Logout</a></li>
+            <li class="nav-auth"><a href="profile.php">My Profile</a></li>
+            <li class="nav-auth-next"><a href="logout.php">Logout</a></li>
         <?php else: ?>
-            <li><a href="login.php">Login</a></li>
+            <li class="nav-auth"><a href="login.php">Login</a></li>
         <?php endif; ?>
     </ul>
 </section>
@@ -182,7 +186,7 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
         <p style="color:red;font-weight:bold;"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
-    <form id="registerForm" action="membership.php" method="POST">
+    <form id="registerForm" action="membership.php#membership-register-section" method="POST">
 
         <fieldset>
             <legend>Personal Information</legend>
@@ -300,6 +304,40 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 </footer>
 
 <script src="script.js"></script>
+
+<!-- Toast notification for successful registration (Bug 4) -->
+<div id="reg-toast" style="display:none;position:fixed;top:30px;right:30px;z-index:9999;
+     background:#6b8e23;color:#fff;padding:16px 28px;border-radius:10px;
+     font-family:'Oswald',sans-serif;font-size:1.1rem;
+     box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:opacity 0.5s;">
+    ✅ Registration successful! <a href="login.php" style="color:#ecf39e;text-decoration:underline;">Login here</a>
+</div>
+
+<script>
+// Bug 3 fix: if there's an error, scroll to the form section (page reloaded with anchor)
+(function() {
+    if (window.location.hash === '#membership-register-section') {
+        var sec = document.getElementById('membership-register-section');
+        if (sec) { setTimeout(function(){ sec.scrollIntoView({behavior:'smooth'}); }, 100); }
+    }
+})();
+
+// Bug 4: show toast on ?registered=1
+(function() {
+    var showToast = <?= $show_toast ? 'true' : 'false' ?>;
+    if (showToast) {
+        var toast = document.getElementById('reg-toast');
+        if (toast) {
+            toast.style.display = 'block';
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function(){ toast.style.display = 'none'; }, 500);
+            }, 4000);
+        }
+    }
+})();
+</script>
+
 <script>
 // ── Correctif mini-panier : pointer vers membership.php ──
 window.proceedToRegister = function () {

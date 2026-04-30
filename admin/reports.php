@@ -28,6 +28,101 @@ if (isset($_GET['export_members'])) {
     exit;
 }
 
+// Export subscription summary as printable HTML (Bug 7)
+if (isset($_GET['export_subscriptions'])) {
+    $subs = $pdo->query("
+        SELECT u.full_name, u.email, p.name AS plan_name, p.price,
+               m.start_date, m.end_date, m.status
+        FROM memberships m
+        JOIN users u ON m.user_id = u.id
+        JOIN plans p ON m.plan_id = p.id
+        ORDER BY m.start_date DESC
+    ")->fetchAll();
+
+    $total_active   = 0;
+    $total_revenue  = 0;
+    foreach ($subs as $s) {
+        if ($s['status'] === 'active') {
+            $total_active++;
+            $total_revenue += $s['price'];
+        }
+    }
+
+    $generated = date('Y-m-d H:i');
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Subscription Summary – SheFit Club</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; color: #222; }
+        h1 { color: #415A77; }
+        h2 { color: #6b8e23; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #415A77; color: white; padding: 10px; text-align: left; }
+        td { padding: 9px 10px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) td { background: #f5f5f5; }
+        .summary-box { display: flex; gap: 30px; margin: 20px 0; }
+        .stat { background: #f0f8e0; border-left: 4px solid #6b8e23; padding: 14px 22px; border-radius: 6px; }
+        .stat .num { font-size: 2rem; font-weight: bold; color: #415A77; }
+        .stat .label { font-size: 0.9rem; color: #555; }
+        .badge-active   { color: #276221; font-weight: bold; }
+        .badge-expired  { color: #b00020; }
+        .badge-cancelled{ color: #888; }
+        .print-note { color: #888; font-size: 0.85rem; margin-bottom: 20px; }
+        @media print {
+            .no-print { display: none; }
+            body { margin: 15px; }
+        }
+    </style>
+    </head><body>
+    <div class="no-print" style="margin-bottom:20px;">
+        <button onclick="window.print()" style="background:#415A77;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:15px;">🖨️ Print / Save as PDF</button>
+        <button onclick="window.history.back()" style="background:#ccc;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:15px;margin-left:10px;">← Back</button>
+    </div>
+    <h1>SheFit Club – Subscription Summary</h1>
+    <p class="print-note">Generated on: ' . htmlspecialchars($generated) . '</p>
+    <div class="summary-box">
+        <div class="stat">
+            <div class="num">' . count($subs) . '</div>
+            <div class="label">Total Subscriptions</div>
+        </div>
+        <div class="stat">
+            <div class="num">' . $total_active . '</div>
+            <div class="label">Active Subscriptions</div>
+        </div>
+        <div class="stat">
+            <div class="num">' . number_format($total_revenue) . ' DZD</div>
+            <div class="label">Monthly Revenue (active)</div>
+        </div>
+    </div>
+    <h2>All Subscriptions</h2>
+    <table>
+        <thead>
+            <tr><th>Member</th><th>Email</th><th>Plan</th><th>Price/mo (DZD)</th><th>Start</th><th>End</th><th>Status</th></tr>
+        </thead>
+        <tbody>';
+    foreach ($subs as $s) {
+        $badge = match($s['status']) {
+            'active'    => 'badge-active',
+            'expired'   => 'badge-expired',
+            default     => 'badge-cancelled'
+        };
+        echo '<tr>
+            <td>' . htmlspecialchars($s['full_name']) . '</td>
+            <td>' . htmlspecialchars($s['email'])     . '</td>
+            <td>' . htmlspecialchars($s['plan_name']) . '</td>
+            <td>' . number_format($s['price'])        . '</td>
+            <td>' . htmlspecialchars($s['start_date']) . '</td>
+            <td>' . htmlspecialchars($s['end_date'])   . '</td>
+            <td class="' . $badge . '">' . ucfirst($s['status']) . '</td>
+        </tr>';
+    }
+    echo '</tbody></table>
+    <p style="margin-top:40px;color:#888;font-size:0.85rem;">&copy; ' . date('Y') . ' SheFit Club — Confidential</p>
+    </body></html>';
+    exit;
+}
+
 $unread = $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE read_status=0")->fetchColumn();
 
 // Revenue par mois
@@ -85,6 +180,10 @@ $popular_classes = $pdo->query("
         <a href="reports.php?export_members=1"
            style="background:#415A77;color:white;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;margin-right:10px;">
             📥 Export Members CSV
+        </a>
+        <a href="reports.php?export_subscriptions=1" target="_blank"
+           style="background:#6b8e23;color:white;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">
+            🖨️ Export Subscription Summary (Printable)
         </a>
     </div>
 

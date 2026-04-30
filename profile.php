@@ -75,6 +75,21 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$user_id]);
 $bookings = $stmt->fetchAll();
+
+// Charger les IDs de classes déjà réservées par l'utilisateur
+$booked_ids_stmt = $pdo->prepare("SELECT class_id FROM class_bookings WHERE user_id = ?");
+$booked_ids_stmt->execute([$user_id]);
+$booked_ids = array_column($booked_ids_stmt->fetchAll(), 'class_id');
+
+// Charger toutes les classes disponibles
+$all_classes = $pdo->query("
+    SELECT c.id, c.name, c.day_of_week, c.start_time, c.difficulty, c.capacity,
+           t.name AS trainer_name,
+           (SELECT COUNT(*) FROM class_bookings WHERE class_id = c.id) AS booked_count
+    FROM classes c
+    JOIN trainers t ON c.trainer_id = t.id
+    ORDER BY FIELD(c.day_of_week,'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')
+")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -95,8 +110,8 @@ $bookings = $stmt->fetchAll();
         <li><a href="membership.php">Membership</a></li>
         <li><a href="trainers.php">Trainers</a></li>
         <li><a href="contact.php">Contact</a></li>
-        <li><a href="profile.php" class="active">My Profile</a></li>
-        <li><a href="logout.php">Logout</a></li>
+        <li class="nav-auth"><a href="profile.php" class="active">My Profile</a></li>
+        <li class="nav-auth-next"><a href="logout.php">Logout</a></li>
     </ul>
 </section>
 
@@ -158,10 +173,10 @@ $bookings = $stmt->fetchAll();
     </div>
 
     <!-- Réservations -->
-    <div style="background:#f9f9f9;padding:25px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background:#f9f9f9;padding:25px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);margin-bottom:30px;">
         <h2 style="color:#6b8e23;margin-bottom:20px;">My Class Bookings</h2>
         <?php if (empty($bookings)): ?>
-            <p>No bookings yet. <a href="classes.php">Book a class!</a></p>
+            <p>No bookings yet. Browse available classes below and book one!</p>
         <?php else: ?>
             <table style="width:100%;border-collapse:collapse;">
                 <thead>
@@ -186,6 +201,55 @@ $bookings = $stmt->fetchAll();
                                    style="background:#e74c3c;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;">
                                     Cancel
                                 </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+
+    <!-- Classes disponibles à réserver -->
+    <div style="background:#f9f9f9;padding:25px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <h2 style="color:#6b8e23;margin-bottom:20px;">Available Classes — Book a Spot</h2>
+        <?php if (empty($all_classes)): ?>
+            <p>No classes available at the moment.</p>
+        <?php else: ?>
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr style="background:#415A77;color:white;">
+                        <th style="padding:10px;">Class</th>
+                        <th style="padding:10px;">Trainer</th>
+                        <th style="padding:10px;">Day</th>
+                        <th style="padding:10px;">Time</th>
+                        <th style="padding:10px;">Difficulty</th>
+                        <th style="padding:10px;">Spots Left</th>
+                        <th style="padding:10px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($all_classes as $cl):
+                        $spots_left = max(0, $cl['capacity'] - $cl['booked_count']);
+                        $already_booked = in_array($cl['id'], $booked_ids);
+                    ?>
+                        <tr style="border-bottom:1px solid #ddd;text-align:center;">
+                            <td style="padding:10px;"><?= htmlspecialchars($cl['name']) ?></td>
+                            <td style="padding:10px;"><?= htmlspecialchars($cl['trainer_name']) ?></td>
+                            <td style="padding:10px;"><?= htmlspecialchars($cl['day_of_week']) ?></td>
+                            <td style="padding:10px;"><?= date('g:i A', strtotime($cl['start_time'])) ?></td>
+                            <td style="padding:10px;"><?= htmlspecialchars($cl['difficulty']) ?></td>
+                            <td style="padding:10px;"><?= $spots_left > 0 ? $spots_left : '<span style="color:red;">Full</span>' ?></td>
+                            <td style="padding:10px;">
+                                <?php if ($already_booked): ?>
+                                    <span style="color:#6b8e23;font-weight:bold;">✔ Booked</span>
+                                <?php elseif ($spots_left > 0): ?>
+                                    <a href="book.php?class_id=<?= $cl['id'] ?>"
+                                       style="background:#6b8e23;color:white;padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:bold;">
+                                        Book
+                                    </a>
+                                <?php else: ?>
+                                    <span style="color:#aaa;">Full</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

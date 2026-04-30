@@ -17,6 +17,25 @@ if (isset($_GET['delete'])) {
     $success = "Class deleted.";
 }
 
+// Ajouter un nouveau coach
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_trainer'])) {
+    $t_name       = trim($_POST['trainer_name']     ?? '');
+    $t_email      = trim($_POST['trainer_email']    ?? '');
+    $t_specialty  = trim($_POST['trainer_specialty'] ?? '');
+    $t_bio        = trim($_POST['trainer_bio']       ?? '');
+    $t_exp        = (int)($_POST['trainer_exp']      ?? 0);
+
+    if (!$t_name) {
+        $error = "Trainer name is required.";
+    } else {
+        $pdo->prepare("INSERT INTO trainers (name, specialty, bio, years_experience) VALUES (?,?,?,?)")
+            ->execute([$t_name, $t_specialty, $t_bio, $t_exp]);
+        $success = "Trainer '{$t_name}' added successfully.";
+        // Reload trainers list
+        $trainers = $pdo->query("SELECT id, name FROM trainers ORDER BY name")->fetchAll();
+    }
+}
+
 // Ajouter
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_class'])) {
     $name       = trim($_POST['name']       ?? '');
@@ -91,6 +110,32 @@ $days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
 
     <section class="classes-dashboard">
         <h2>Class Schedule Manager</h2>
+
+        <!-- Add New Trainer section (Bug 6) -->
+        <div style="margin-bottom:20px;">
+            <button id="add-trainer-btn"
+                    onclick="document.getElementById('add-trainer-form').style.display='block';this.style.display='none';"
+                    style="background:#6b8e23;color:white;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-size:15px;">
+                + Add New Trainer / Coach
+            </button>
+            <div id="add-trainer-form" style="display:none;background:#f0fff0;padding:15px;border-radius:12px;border:1px solid #90EE90;max-width:600px;margin:15px 0;">
+                <h3 style="margin-top:0;color:#4a7c10;">New Trainer</h3>
+                <form method="POST">
+                    <input type="hidden" name="add_trainer" value="1">
+                    <input type="text" name="trainer_name" placeholder="Full Name *" required
+                           style="width:98%;padding:8px;margin:4px 0;">
+                    <input type="text" name="trainer_specialty" placeholder="Specialty (e.g. Yoga, Pilates)"
+                           style="width:48%;padding:8px;margin:4px 1%;">
+                    <input type="number" name="trainer_exp" placeholder="Years of experience" min="0"
+                           style="width:48%;padding:8px;margin:4px 1%;">
+                    <textarea name="trainer_bio" placeholder="Short bio (optional)"
+                              style="width:98%;padding:8px;margin:4px 0;height:60px;"></textarea>
+                    <button type="submit" style="background:#6b8e23;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-top:8px;">Save Trainer</button>
+                    <button type="button" onclick="document.getElementById('add-trainer-form').style.display='none';document.getElementById('add-trainer-btn').style.display='block';"
+                            style="background:#ccc;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-left:5px;">Cancel</button>
+                </form>
+            </div>
+        </div>
 
         <!-- Bouton Add – identique à ton HTML -->
         <button id="add-class-btn"

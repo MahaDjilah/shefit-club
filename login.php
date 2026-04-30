@@ -40,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>SheFit Club – Login</title>
     <link rel="icon" href="images/cropped_circle_image.png">
     <link rel="stylesheet" href="style.project.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@600&family=Roboto+Slab:wght@100..900&family=Tangerine:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -51,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <li><a href="membership.php">Membership</a></li>
         <li><a href="trainers.php">Trainers</a></li>
         <li><a href="contact.php">Contact</a></li>
-        <li><a href="login.php" class="active">Login</a></li>
+        <li class="nav-auth"><a href="login.php" class="active">Login</a></li>
     </ul>
 </section>
 

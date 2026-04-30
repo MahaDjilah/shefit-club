@@ -35,6 +35,32 @@ foreach ($stmt->fetchAll() as $row) {
     $planCounts[$row['plan_name']] = (int)$row['cnt'];
 }
 $max = max(array_values($planCounts)) ?: 1;
+
+// Charger les membres depuis MySQL pour les injecter dans localStorage
+$membersFromDB = $pdo->query("
+    SELECT u.id, u.full_name AS name, u.email, u.phone,
+           u.created_at AS date,
+           COALESCE(p.name, 'None') AS plan
+    FROM users u
+    LEFT JOIN memberships m ON m.user_id = u.id AND m.status = 'active'
+    LEFT JOIN plans p ON m.plan_id = p.id
+    WHERE u.role = 'member'
+    ORDER BY u.created_at DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// Formater pour correspondre exactement à la structure attendue par admin-script.js
+$membersForJS = array_map(function($m) {
+    return [
+        'id'    => (int)$m['id'],
+        'name'  => $m['name'],
+        'email' => $m['email'],
+        'phone' => $m['phone'] ?? '',
+        'plan'  => $m['plan'],
+        'date'  => date('d-m-Y', strtotime($m['date']))
+    ];
+}, $membersFromDB);
+
+$membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -173,7 +199,10 @@ $max = max(array_values($planCounts)) ?: 1;
 </main>
 </div>
 
-<!-- admin-script.js intact – gère tout le localStorage comme avant -->
-<script src="../admin-script.js"></script>
+<!-- Injection des membres MySQL dans localStorage avant admin-script.js -->
+<script>
+    localStorage.setItem('shefit_members', JSON.stringify(<?= $membersJson ?>));
+</script>
+<!-- admin-script.js intact – gère tout le localStorage comme avant -->\n<script src="../admin-script.js"></script>
 </body>
 </html>
