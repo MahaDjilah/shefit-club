@@ -3,7 +3,8 @@ session_start();
 require 'includes/db.php';
 
 $success = '';
-$error   = '';
+$error          = '';
+$error_password = '';
 
 // ---- Traitement du formulaire ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -30,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($plan)) {
         $error = "Please select a plan.";
     } elseif (strlen($password) < 6) {
-        $error = "Password must be at least 6 characters.";
+        $error_password = "Password must be at least 6 characters.";
     } elseif ($password !== $password2) {
-        $error = "Passwords do not match.";
+        $error_password = "Passwords do not match.";
     } else {
         // Vérifier email unique
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
@@ -105,30 +106,65 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
     <p>Choose the membership plan that best fits your lifestyle and fitness goals. All members enjoy a supportive women-only environment, modern equipment, and a wide variety of fitness classes.</p>
 </header>
 
-<!-- PLAN CARDS – depuis la BD, même structure que ton HTML -->
+<!-- PLAN CARDS – contenu identique au HTML original -->
 <section id="membership-plans-section">
 
-    <?php
-    $cardClasses = ['bronze-card', 'silver-card recommended-card', 'gold-card'];
-    $i = 0;
-    foreach ($plans as $plan):
-        $cc = $cardClasses[$i++] ?? 'bronze-card';
-        $features = explode(';', $plan['features']);
-    ?>
-    <article class="membership-card <?= $cc ?>">
-        <h3><?= htmlspecialchars($plan['name']) ?> Plan</h3>
-        <dl>
-            <dt>Overview</dt>
-            <dd><?= htmlspecialchars($plan['description']) ?></dd>
-        </dl>
-        <ul>
-            <?php foreach ($features as $f): ?>
-                <li><?= htmlspecialchars(trim($f)) ?></li>
-            <?php endforeach; ?>
-        </ul>
-        <div class="membership-price"><?= number_format($plan['price']) ?> DZD / month</div>
-    </article>
-    <?php endforeach; ?>
+  <article class="membership-card bronze-card">
+    <h3>Bronze Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>The Bronze plan is perfect for beginners or members who want flexible access to essential gym facilities. It allows you to start your fitness journey while enjoying the core spaces of SheFit Club.</dd>
+      <dt>Best For</dt>
+      <dd>New members who want to train a few times per week and explore different activities before committing to a long-term membership.</dd>
+    </dl>
+    <ul>
+      <li>Access to the Cardio Room with treadmills, bikes, and ellipticals</li>
+      <li>Access to the Weights Area for basic strength training</li>
+      <li>2 group fitness classes per week (Pilates, Yoga, or Dance)</li>
+      <li>Use of Locker & Shower facilities</li>
+      <li>Free orientation session with a trainer</li>
+    </ul>
+    <div class="membership-price">3500 DZD / month</div>
+  </article>
+
+  <article class="membership-card silver-card recommended-card">
+    <h3>Silver Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>The Silver plan is designed for members who train regularly and want more variety in their workouts. It provides broader access to gym facilities and unlimited group classes.</dd>
+      <dt>Best For</dt>
+      <dd>Active members who enjoy group fitness and want the freedom to try different training styles such as Pilates, kickboxing, or pool workouts.</dd>
+    </dl>
+    <ul>
+      <li>Full access to Cardio Room, Weights Area, and Pilates Studio</li>
+      <li>Unlimited group classes including Pilates, Kickboxing, and Yoga</li>
+      <li>Access to the Swimming Pool for cardio and recovery workouts</li>
+      <li>Access to Paddle Area for fun and competitive activities</li>
+      <li>Priority booking for popular group classes</li>
+      <li>Use of Locker & Shower facilities</li>
+    </ul>
+    <div class="membership-price">7000 DZD / month</div>
+  </article>
+
+  <article class="membership-card gold-card">
+    <h3>Gold Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>The Gold plan offers the complete SheFit Club experience with unlimited access to all facilities and exclusive member benefits. It is ideal for committed members who want maximum flexibility and premium services.</dd>
+      <dt>Best For</dt>
+      <dd>Members who train frequently and want access to all spaces, advanced classes, and special wellness services throughout the year.</dd>
+    </dl>
+    <ul>
+      <li>Unlimited access to all gym facilities</li>
+      <li>Unlimited group classes including Pilates, Kickboxing, and Aquatic Fitness</li>
+      <li>Access to Pre/Postnatal Fitness Room programs</li>
+      <li>Priority booking for classes and special events</li>
+      <li>Free monthly personal training consultation</li>
+      <li>Discounts at the Fit Bar for healthy snacks and drinks</li>
+      <li>Access to Swimming Pool and Paddle Area anytime</li>
+    </ul>
+    <div class="membership-price">12000 DZD / month</div>
+  </article>
 
 </section>
 
@@ -177,6 +213,9 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 
             <label for="password">Password:</label><br>
             <input type="password" id="password" name="password" required>
+            <?php if ($error_password): ?>
+                <p style="color:red;font-weight:bold;margin:4px 0;"><?= htmlspecialchars($error_password) ?></p>
+            <?php endif; ?>
             <br><br>
 
             <label for="password2">Confirm Password:</label><br>
@@ -262,77 +301,65 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 
 <script src="script.js"></script>
 <script>
-/*
- * CORRECTIF BACKEND – membership.php
- *
- * 1) Le formulaire #registerForm doit être soumis en POST vers membership.php
- *    pour créer le compte en base de données.
- *    Le script.js intercepte le submit et appelle alert() sans envoyer de données.
- *    Solution : remplacer le nœud formulaire pour supprimer les listeners JS,
- *    puis rattacher uniquement la validation visuelle sans preventDefault final.
- *
- * 2) Le mini-panier utilise REGISTER_PAGE_URL = "membership.html" (fichier statique).
- *    Sur membership.php le chemin ne se termine pas par ".html", donc
- *    proceedToRegister() redirige vers membership.html au lieu de faire défiler.
- *    Solution : surcharger REGISTER_PAGE_URL et proceedToRegister() pour qu'ils
- *    pointent vers membership.php.
- */
+// ── Correctif mini-panier : pointer vers membership.php ──
+window.proceedToRegister = function () {
+    var savedPlan = sessionStorage.getItem('selectedPlan');
+    if (!savedPlan) return;
+    var currentPath = window.location.pathname;
+    if (currentPath.endsWith('membership.php') || currentPath.endsWith('membership')) {
+        var plan = JSON.parse(savedPlan);
+        var radio = document.querySelector('input[name="plan"][value="' + plan.value + '"]');
+        if (radio) radio.checked = true;
+        var section = document.getElementById('membership-register-section');
+        if (section) section.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        window.location.href = 'membership.php#membership-register-section';
+    }
+};
 
-/* ── Correctif 2 : mini-panier ── */
-if (typeof REGISTER_PAGE_URL !== 'undefined') {
-    // Redéfinir la constante et la fonction qui l'utilise
-    window.REGISTER_PAGE_URL_FIXED = 'membership.php';
-
-    window.proceedToRegister = function () {
-        var savedPlan = sessionStorage.getItem('selectedPlan');
-        if (!savedPlan) return;
-
-        var currentPath = window.location.pathname;
-        var isOnRegisterPage = currentPath.endsWith('membership.php') ||
-                               currentPath.endsWith('membership');
-
-        if (isOnRegisterPage) {
-            var plan = JSON.parse(savedPlan);
-            var radioButton = document.querySelector('input[name="plan"][value="' + plan.value + '"]');
-            if (radioButton) radioButton.checked = true;
-            var registerSection = document.getElementById('membership-register-section');
-            if (registerSection) registerSection.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            window.location.href = 'membership.php#membership-register-section';
-        }
-    };
-}
-
-/* ── Correctif 1 : formulaire d'inscription ── */
-(function () {
+// ── Correctif formulaire : laisser JS valider, puis soumettre vers PHP ──
+// On NE clone PAS le formulaire pour que les références JS (nameError, etc.) restent valides.
+// On ajoute juste un listener supplémentaire qui, après que JS a validé,
+// soumet réellement le formulaire vers PHP.
+document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('registerForm');
     if (!form) return;
 
-    // Cloner pour retirer tous les listeners attachés par script.js
-    var freshForm = form.cloneNode(true);
-    form.parentNode.replaceChild(freshForm, form);
-
-    freshForm.addEventListener('submit', function (e) {
-        // Validation côté client minimale (PHP re-valide de toute façon)
-        var nameVal  = (freshForm.querySelector('#name')  || {value:''}).value.trim();
-        var emailVal = (freshForm.querySelector('#email') || {value:''}).value.trim();
-        var planVal  = freshForm.querySelector('input[name="plan"]:checked');
-        var termsVal = freshForm.querySelector('input[type="checkbox"]');
-
-        var ok = true;
-
-        if (!/^[A-Za-z\s]{3,}$/.test(nameVal))           { ok = false; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { ok = false; }
-        if (!planVal)                                       { ok = false; }
-        if (termsVal && !termsVal.checked)                  { ok = false; }
-
-        if (!ok) {
-            e.preventDefault(); // Bloquer l'envoi invalide
-            return;
-        }
-        // Envoi natif POST → membership.php → PHP crée le compte en BDD
+    form.addEventListener('submit', function () {
+        // script.js a déjà appelé e.preventDefault() et vérifié la validation.
+        // Si on arrive ici via form.submit() (appelé programmatiquement),
+        // les navigateurs n'ont pas de double-déclenchement — ce listener
+        // sert uniquement à intercepter le submit natif du bouton.
+        // La soumission réelle est déclenchée par le setTimeout ci-dessous.
     });
-})();
+
+    // Intercepter le bouton submit pour lancer la validation JS PUIS soumettre PHP
+    var submitBtn = form.querySelector('input[type="submit"], button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            // Déclencher la validation JS de script.js via les fonctions globales
+            var nameOk  = typeof validateName  === 'function' ? validateName()  : true;
+            var emailOk = typeof validateEmail === 'function' ? validateEmail() : true;
+            var phoneOk = typeof validatePhone === 'function' ? validatePhone() : true;
+            var dobOk   = typeof validateDOB   === 'function' ? validateDOB()   : true;
+            var planOk  = typeof validatePlan  === 'function' ? validatePlan()  : true;
+            var termsOk = typeof validateTerms === 'function' ? validateTerms() : true;
+
+            if (nameOk && emailOk && phoneOk && dobOk && planOk && termsOk) {
+                // Toutes les validations passent → soumettre vers PHP
+                form.submit();
+            }
+            // Sinon les messages d'erreur JS sont déjà affichés par les fonctions ci-dessus
+        });
+    }
+});
+
+
+
+
+
 </script>
 </body>
 </html>
