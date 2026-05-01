@@ -239,7 +239,7 @@ const membershipPlans = {
     gold:   { name: "Gold Plan",   price: "12000 DZD / month", value: "gold"  }
 };
 
-const REGISTER_PAGE_URL = "membership.html";
+const REGISTER_PAGE_URL = "membership.php";
 
 function selectPlan(planKey) {
     const plan = membershipPlans[planKey];
@@ -277,13 +277,11 @@ function proceedToRegister() {
     const savedPlan = sessionStorage.getItem("selectedPlan");
     if (!savedPlan) return;
 
-    const targetURL = `${REGISTER_PAGE_URL}#membership-register-section`;
     const currentPath = window.location.pathname;
-    const isOnRegisterPage =
-        currentPath.endsWith(REGISTER_PAGE_URL) ||
-        (REGISTER_PAGE_URL === "index.html" && (currentPath === "/" || currentPath.endsWith("/index.html") || currentPath === ""));
+    const isOnMembershipPage = currentPath.endsWith("membership.php");
 
-    if (isOnRegisterPage) {
+    if (isOnMembershipPage) {
+        // Déjà sur la page membership : juste cocher le radio et scroller
         const plan = JSON.parse(savedPlan);
         const radioButton = document.querySelector(`input[name="plan"][value="${plan.value}"]`);
         if (radioButton) radioButton.checked = true;
@@ -291,7 +289,9 @@ function proceedToRegister() {
         const registerSection = document.getElementById("membership-register-section");
         if (registerSection) registerSection.scrollIntoView({ behavior: "smooth" });
     } else {
-        window.location.href = targetURL;
+        // Depuis n'importe quelle autre page : marquer qu'on veut scroller, puis rediriger
+        sessionStorage.setItem("scrollToForm", "1");
+        window.location.href = "membership.php";
     }
 }
 
@@ -334,13 +334,19 @@ function autoPreselectPlan() {
     const savedPlan = sessionStorage.getItem("selectedPlan");
     if (!savedPlan) return;
 
+    // Cocher le radio correspondant
     const plan = JSON.parse(savedPlan);
     const radioButton = document.querySelector(`input[name="plan"][value="${plan.value}"]`);
     if (radioButton) radioButton.checked = true;
 
-    const registerSection = document.getElementById("membership-register-section");
-    if (registerSection) {
-        setTimeout(() => registerSection.scrollIntoView({ behavior: "smooth" }), 300);
+    // Scroller vers le form UNIQUEMENT si l'utilisateur a cliqué "Proceed to Register"
+    const shouldScroll = sessionStorage.getItem("scrollToForm");
+    if (shouldScroll) {
+        sessionStorage.removeItem("scrollToForm"); // consommer le flag
+        const registerSection = document.getElementById("membership-register-section");
+        if (registerSection) {
+            setTimeout(() => registerSection.scrollIntoView({ behavior: "smooth" }), 300);
+        }
     }
 }
 
@@ -722,10 +728,11 @@ function init() {
 document.addEventListener("DOMContentLoaded", () => {
     init();            // Partie 1 : Formulaire + Partie 2 : Classes
 
-    // Bug fix: only initialize the membership cart on the membership page
     const currentPage = window.location.pathname;
     if (currentPage.includes('membership')) {
-        initMembership();  // Partie 3 : Membership Cart
+        initMembership();  // Partie 3 : boutons Select Plan + mini-cart + autoPreselect
+    } else {
+        createMiniCart();  // Sur toutes les autres pages : afficher le mini-cart si un plan est en session
     }
 
     // Partie 4 : Trainers — uniquement sur la page trainers

@@ -326,6 +326,9 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 (function() {
     var showToast = <?= $show_toast ? 'true' : 'false' ?>;
     if (showToast) {
+        // Vider le mini-cart après inscription réussie
+        sessionStorage.removeItem('selectedPlan');
+        sessionStorage.removeItem('scrollToForm');
         var toast = document.getElementById('reg-toast');
         if (toast) {
             toast.style.display = 'block';
