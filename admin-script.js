@@ -48,27 +48,12 @@ function cancelEdit(rowId) {
 
 // ====================== MEMBERS MANAGEMENT ======================
 function renderMembers(filtered = members) {
-    const tbody = document.querySelector(".activity-dashboard tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-
-    filtered.forEach((member, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${member.name}</td>
-            <td>${member.email}</td>           
-            <td>${member.date}</td>
-            <td>${member.plan}</td>
-            <td>
-                <button onclick="startEditMember(${index}, this)" class="btn-edit">Edit</button>
-                <button onclick="deleteMember(${index})" class="btn-delete">Delete</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+    // Le tableau members est rendu par PHP (statut + ban/unban/delete).
+    // Cette fonction ne modifie plus le DOM — elle reste pour updateDashboardStats/updateChart.
 }
 
-function startEditMember(index, btn) {
+function startEditMember(index, btn) { return; /* handled by PHP */
+    // kept for compatibility
     const row = btn.parentElement.parentElement;
     const m = members[index];
 
