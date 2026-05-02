@@ -36,10 +36,28 @@ foreach ($stmt->fetchAll() as $row) {
 }
 $max = max(array_values($planCounts)) ?: 1;
 
-// Charger les membres depuis MySQL pour les injecter dans localStorage
+// ── Ban / Unban ──
+if (isset($_GET['ban'])) {
+    $pdo->prepare("UPDATE users SET status='banned' WHERE id=? AND role='member'")->execute([(int)$_GET['ban']]);
+    header("Location: dashboard.php"); exit;
+}
+if (isset($_GET['unban'])) {
+    $pdo->prepare("UPDATE users SET status='active' WHERE id=? AND role='member'")->execute([(int)$_GET['unban']]);
+    header("Location: dashboard.php"); exit;
+}
+// ── Delete membre ──
+if (isset($_GET['delete_member'])) {
+    $mid = (int)$_GET['delete_member'];
+    $pdo->prepare("DELETE FROM class_bookings WHERE user_id=?")->execute([$mid]);
+    $pdo->prepare("DELETE FROM memberships   WHERE user_id=?")->execute([$mid]);
+    $pdo->prepare("DELETE FROM users WHERE id=? AND role='member'")->execute([$mid]);
+    header("Location: dashboard.php"); exit;
+}
+
+// Charger les membres depuis MySQL (avec status)
 $membersFromDB = $pdo->query("
     SELECT u.id, u.full_name AS name, u.email, u.phone,
-           u.created_at AS date,
+           u.created_at AS date, u.status,
            COALESCE(p.name, 'None') AS plan
     FROM users u
     LEFT JOIN memberships m ON m.user_id = u.id AND m.status = 'active'
@@ -48,7 +66,7 @@ $membersFromDB = $pdo->query("
     ORDER BY u.created_at DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Formater pour correspondre exactement à la structure attendue par admin-script.js
+// Formater pour localStorage (admin-script.js)
 $membersForJS = array_map(function($m) {
     return [
         'id'    => (int)$m['id'],
@@ -96,46 +114,62 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
         </ul>
     </section>
 
-    <!-- Members Management – identique à ton HTML, admin-script.js gère tout -->
+    <!-- Members Management – rendu PHP depuis MySQL -->
     <section class="activity-dashboard">
-        <h2>Recent Registrations</h2>
-
-        <input type="text" id="searchMember" placeholder="Search by name or email">
-        <select id="filterPlan">
-            <option value="All">All Plans</option>
-            <option value="Bronze">Bronze</option>
-            <option value="Silver">Silver</option>
-            <option value="Gold">Gold</option>
-        </select>
-
-        <button onclick="toggleForm()">Add Member</button>
-
-        <form id="memberForm" style="margin-top:15px; display:none;">
-            <input type="text" id="memberName" placeholder="Name" required>
-            <input type="email" id="memberEmail" placeholder="Email" required>
-            <input type="text" id="memberPhone" placeholder="Phone" required>
-            <select id="memberPlan" required>
-                <option value="">Select Plan</option>
-                <option value="Bronze">Bronze</option>
-                <option value="Silver">Silver</option>
-                <option value="Gold">Gold</option>
-            </select>
-            <input type="date" id="memberDate" required>
-            <button type="submit">Save Member</button>
-            <button type="button" onclick="toggleForm()">Cancel</button>
-        </form>
+        <h2>Members (<?= count($membersFromDB) ?>)</h2>
 
         <table>
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Date</th>
+                    <th>Phone</th>
                     <th>Plan</th>
+                    <th>Registered</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <?php if (empty($membersFromDB)): ?>
+                    <tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">No members yet.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($membersFromDB as $m): ?>
+                <tr>
+                    <td><?= htmlspecialchars($m['name']) ?></td>
+                    <td><?= htmlspecialchars($m['email']) ?></td>
+                    <td><?= htmlspecialchars($m['phone'] ?? '-') ?></td>
+                    <td><?= htmlspecialchars($m['plan']) ?></td>
+                    <td><?= date('d/m/Y', strtotime($m['date'])) ?></td>
+                    <td>
+                        <?php if (($m['status'] ?? 'active') === 'banned'): ?>
+                            <span style="color:#e74c3c;font-weight:bold;">Banned</span>
+                        <?php else: ?>
+                            <span style="color:green;font-weight:bold;">Active</span>
+                        <?php endif; ?>
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <?php if (($m['status'] ?? 'active') === 'banned'): ?>
+                            <a href="dashboard.php?unban=<?= $m['id'] ?>"
+                               style="background:#6b8e23;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;font-size:13px;margin-right:3px;display:inline-block;">
+                                Unban
+                            </a>
+                        <?php else: ?>
+                            <a href="dashboard.php?ban=<?= $m['id'] ?>"
+                               onclick="return confirm('Ban <?= htmlspecialchars(addslashes($m['name'])) ?>?')"
+                               style="background:#e67e22;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;font-size:13px;margin-right:3px;display:inline-block;">
+                                Ban
+                            </a>
+                        <?php endif; ?>
+                        <a href="dashboard.php?delete_member=<?= $m['id'] ?>"
+                           onclick="return confirm('Delete <?= htmlspecialchars(addslashes($m['name'])) ?> permanently?')"
+                           style="background:#e74c3c;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;font-size:13px;display:inline-block;">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
         </table>
     </section>
 

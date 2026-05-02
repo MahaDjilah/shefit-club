@@ -54,6 +54,19 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $member = $stmt->fetch();
 
+// Si le membre est banni, afficher un message et bloquer l'accès
+if ($member && $member['status'] === 'banned') {
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <link rel="stylesheet" href="style.project.css"></head><body>
+    <div style="text-align:center;padding:80px 20px;">
+      <h1 style="color:#e74c3c;">⚠️ Account Suspended</h1>
+      <p style="font-size:1.1rem;">Your account has been suspended by an administrator.</p>
+      <p>Please contact <a href="contact.php">SheFit Club</a> for more information.</p>
+      <a href="logout.php" style="background:#415A77;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;">Logout</a>
+    </div></body></html>';
+    exit;
+}
+
 // Charger abonnement actif
 $stmt = $pdo->prepare("
     SELECT m.*, p.name AS plan_name, p.price
@@ -210,7 +223,7 @@ $all_classes = $pdo->query("
     </div>
 
     <!-- Classes disponibles à réserver -->
-    <div style="background:#f9f9f9;padding:25px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+    <div id="available-classes-section" style="background:#f9f9f9;padding:25px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
         <h2 style="color:#6b8e23;margin-bottom:20px;">Available Classes — Book a Spot</h2>
         <?php if (empty($all_classes)): ?>
             <p>No classes available at the moment.</p>
@@ -284,6 +297,45 @@ $all_classes = $pdo->query("
     <hr>
     <p>&copy; 2026 SheFit Club. All rights reserved.</p>
 </footer>
+
+<!-- Toast booking + scroll fix (Bug 4) -->
+<div id="booking-toast" style="display:none;position:fixed;top:30px;right:30px;z-index:9999;
+     background:#6b8e23;color:#fff;padding:14px 24px;border-radius:10px;
+     font-family:'Oswald',sans-serif;font-size:1rem;
+     box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:opacity 0.5s;">
+    ✅ Class booked successfully!
+</div>
+
+<script>
+(function() {
+    var params = new URLSearchParams(window.location.search);
+
+    // Scroll vers la section classes si ?booked=1
+    if (params.get('booked') === '1') {
+        var sec = document.getElementById('available-classes-section');
+        if (sec) {
+            setTimeout(function() { sec.scrollIntoView({ behavior: 'smooth' }); }, 100);
+        }
+        // Toast
+        var toast = document.getElementById('booking-toast');
+        if (toast) {
+            toast.style.display = 'block';
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.style.display = 'none'; }, 500);
+            }, 3000);
+        }
+        // Nettoyer l'URL sans reload
+        history.replaceState(null, '', 'profile.php');
+    }
+
+    // Scroll vers section si #available-classes-section dans l'URL
+    if (window.location.hash === '#available-classes-section') {
+        var sec = document.getElementById('available-classes-section');
+        if (sec) setTimeout(function() { sec.scrollIntoView({ behavior: 'smooth' }); }, 100);
+    }
+})();
+</script>
 
 </body>
 </html>
