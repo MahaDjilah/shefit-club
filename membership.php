@@ -110,37 +110,65 @@ $plans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
     <p>Choose the membership plan that best fits your lifestyle and fitness goals. All members enjoy a supportive women-only environment, modern equipment, and a wide variety of fitness classes.</p>
 </header>
 
-<!-- PLAN CARDS – dynamiques depuis MySQL -->
+<!-- PLAN CARDS – contenu identique au HTML original -->
 <section id="membership-plans-section">
 
-<?php
-$card_styles = [
-    'bronze' => ['card_class' => 'bronze-card', 'recommended' => false],
-    'silver' => ['card_class' => 'silver-card', 'recommended' => true],
-    'gold'   => ['card_class' => 'gold-card',   'recommended' => false],
-];
-
-foreach ($plans as $plan):
-    $key   = strtolower($plan['name']);
-    $style = $card_styles[$key] ?? ['card_class' => 'bronze-card', 'recommended' => false];
-    $recommended = $style['recommended'] ? ' recommended-card' : '';
-    $duration_label = $plan['duration_months'] == 1 ? 'month' : $plan['duration_months'] . ' months';
-    $features = array_filter(array_map('trim', explode("\n", $plan['description'] ?? '')));
-?>
-  <article class="membership-card <?= $style['card_class'] . $recommended ?>">
-    <h3><?= htmlspecialchars($plan['name']) ?> Plan</h3>
-    <?php if (!empty($features)): ?>
+  <article class="membership-card bronze-card">
+    <h3>Bronze Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>The Bronze plan is perfect for beginners or members who want flexible access to essential gym facilities. It allows you to start your fitness journey while enjoying the core spaces of SheFit Club.</dd>
+      <dt>Best For</dt>
+      <dd>New members who want to train a few times per week and explore different activities before committing to a long-term membership.</dd>
+    </dl>
     <ul>
-      <?php foreach ($features as $f): ?>
-        <li><?= htmlspecialchars($f) ?></li>
-      <?php endforeach; ?>
+      <li>Access to the Cardio Room with treadmills, bikes, and ellipticals</li>
+      <li>Access to the Weights Area for basic strength training</li>
+      <li>2 group fitness classes per week (Pilates, Yoga, or Dance)</li>
+      <li>Use of Locker & Shower facilities</li>
+      <li>Free orientation session with a trainer</li>
     </ul>
-    <?php endif; ?>
-    <div class="membership-price">
-      <?= number_format($plan['price']) ?> DZD / <?= $duration_label ?>
-    </div>
+    <div class="membership-price">3500 DZD / month</div>
   </article>
-<?php endforeach; ?>
+
+  <article class="membership-card silver-card recommended-card">
+    <h3>Silver Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>The Silver plan is designed for members who train regularly and want more variety in their workouts. It provides broader access to gym facilities and unlimited group classes.</dd>
+      <dt>Best For</dt>
+      <dd>Active members who enjoy group fitness and want the freedom to try different training styles such as Pilates, kickboxing, or pool workouts.</dd>
+    </dl>
+    <ul>
+      <li>Full access to Cardio Room, Weights Area, and Pilates Studio</li>
+      <li>Unlimited group classes including Pilates, Kickboxing, and Yoga</li>
+      <li>Access to the Swimming Pool for cardio and recovery workouts</li>
+      <li>Access to Paddle Area for fun and competitive activities</li>
+      <li>Priority booking for popular group classes</li>
+      <li>Use of Locker & Shower facilities</li>
+    </ul>
+    <div class="membership-price">7000 DZD / month</div>
+  </article>
+
+  <article class="membership-card gold-card">
+    <h3>Gold Plan</h3>
+    <dl>
+      <dt>Overview</dt>
+      <dd>The Gold plan offers the complete SheFit Club experience with unlimited access to all facilities and exclusive member benefits. It is ideal for committed members who want maximum flexibility and premium services.</dd>
+      <dt>Best For</dt>
+      <dd>Members who train frequently and want access to all spaces, advanced classes, and special wellness services throughout the year.</dd>
+    </dl>
+    <ul>
+      <li>Unlimited access to all gym facilities</li>
+      <li>Unlimited group classes including Pilates, Kickboxing, and Aquatic Fitness</li>
+      <li>Access to Pre/Postnatal Fitness Room programs</li>
+      <li>Priority booking for classes and special events</li>
+      <li>Free monthly personal training consultation</li>
+      <li>Discounts at the Fit Bar for healthy snacks and drinks</li>
+      <li>Access to Swimming Pool and Paddle Area anytime</li>
+    </ul>
+    <div class="membership-price">12000 DZD / month</div>
+  </article>
 
 </section>
 
