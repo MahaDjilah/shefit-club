@@ -1,4 +1,4 @@
-// ====================== PARTIE 1 : FORMULAIRE D'INSCRIPTION ======================
+// --------------------------- PARTIE 1 : FORMULAIRE D'INSCRIPTION ---------------
 
 const form = document.getElementById("registerForm");
 
@@ -101,7 +101,7 @@ function validateTerms() {
 }
 
 
-// ====================== PARTIE 2 : CLASSES - FILTRES & TRI ======================
+// ------------------- PARTIE 2 : CLASSES - FILTRES & TRI -----------------------
 
 const classesData = [
     { name: "Pilates Core",      trainer: "Sarah.J", day: "Monday",    time: "10:00 AM", duration: 45, level: "Beginner" },
@@ -190,7 +190,7 @@ function setupClasses() {
     if (levelFilter)   levelFilter.addEventListener("change", applyFiltersAndSort);
     if (trainerFilter) trainerFilter.addEventListener("change", applyFiltersAndSort);
 
-    // Remplir Trainer dynamiquement
+    
     const trainerSelect = document.getElementById("trainer");
     if (trainerSelect) {
         const trainers = [...new Set(classesData.map(c => c.trainer))];
@@ -203,7 +203,7 @@ function setupClasses() {
         });
     }
 
-    // Tri sur les headers
+    
     const headers = document.querySelectorAll(".classes-table th");
     const columns = ["name", "trainer", "day", "time", "duration", "level"];
 
@@ -231,7 +231,7 @@ function setupClasses() {
 }
 
 
-// ====================== PARTIE 3 : MEMBERSHIP PLANS & MINI CART ======================
+// ----------------- PARTIE 3 : MEMBERSHIP PLANS & MINI CART -------------------------------
 
 const membershipPlans = {
     bronze: { name: "Bronze Plan", price: "3500 DZD / month", value: "bronze" },
@@ -281,7 +281,7 @@ function proceedToRegister() {
     const isOnMembershipPage = currentPath.endsWith("membership.php");
 
     if (isOnMembershipPage) {
-        // Déjà sur la page membership : juste cocher le radio et scroller
+       
         const plan = JSON.parse(savedPlan);
         const radioButton = document.querySelector(`input[name="plan"][value="${plan.value}"]`);
         if (radioButton) radioButton.checked = true;
@@ -289,7 +289,7 @@ function proceedToRegister() {
         const registerSection = document.getElementById("membership-register-section");
         if (registerSection) registerSection.scrollIntoView({ behavior: "smooth" });
     } else {
-        // Depuis n'importe quelle autre page : marquer qu'on veut scroller, puis rediriger
+       
         sessionStorage.setItem("scrollToForm", "1");
         window.location.href = "membership.php";
     }
@@ -351,12 +351,12 @@ function autoPreselectPlan() {
 }
 
 function initMembership() {
-    console.log("🚀 Membership Cart Feature Initialized");
+    console.log("Membership Cart Feature Initialized");
     addSelectButtons();
     createMiniCart();
     autoPreselectPlan();
     updateMiniCart();
-    console.log("✅ Membership feature is ready!");
+    console.log("Membership feature done");
 }
 
 
@@ -523,15 +523,15 @@ function makeCardsClickable() {
 }
 
 function initTrainers() {
-    console.log("🚀 Trainers Page JavaScript Loaded");
+    console.log("Trainers Page JavaScript Loaded");
     setupSearch();
     createModal();
     makeCardsClickable();
-    console.log("✅ Search and Modal are ready!");
+    console.log("Search and Modal done");
 }
 
 
-// ====================== PARTIE 5 : CONTACT FORM & FEEDBACK ======================
+// ----------------------PARTIE 5 : CONTACT FORM & FEEDBACK --------------------------------
 
 function initContactForm() {
     const contactForm = document.querySelector('.contact-form form');
@@ -630,7 +630,7 @@ function initContactForm() {
     body: new FormData(contactForm)
 })
 .then(() => {
-    // Sauvegarder aussi dans localStorage
+    
     let messages = JSON.parse(localStorage.getItem('contactMessages')) || [];
     messages.push({
         id:      Date.now(),
@@ -688,10 +688,10 @@ function initContactForm() {
 }
 
 
-// ====================== INITIALISATION GÉNÉRALE ======================
+
 
 function init() {
-    console.log("🚀 Initialisation de toutes les fonctionnalités...");
+    console.log("Initialisation de toutes les fonctionnalités");
 
     if (form) {
         nameInput.addEventListener("blur", validateName);
@@ -715,31 +715,31 @@ function init() {
                 form.reset();
             }
         });
-        console.log("✅ Formulaire d'inscription initialisé");
+        console.log("Formulaire d'inscription initialisé");
     }
 
     setupClasses();
-    console.log("✅ Tout est prêt ! Formulaire + Filtres Classes fonctionnent.");
+    console.log("tout marche");
 }
 
 
-// ====================== LANCEMENT ======================
+
 
 document.addEventListener("DOMContentLoaded", () => {
-    init();            // Partie 1 : Formulaire + Partie 2 : Classes
+    init();            
 
     const currentPage = window.location.pathname;
     if (currentPage.includes('membership')) {
-        initMembership();  // Partie 3 : boutons Select Plan + mini-cart + autoPreselect
+        initMembership();  
     } else {
-        createMiniCart();  // Sur toutes les autres pages : afficher le mini-cart si un plan est en session
+        createMiniCart();  
     }
 
-    // Partie 4 : Trainers — uniquement sur la page trainers
+    
     if (document.getElementById("trainer-search") || document.querySelector('.trainers-grid')) {
         initTrainers();
     }
 
-    initContactForm(); // Partie 5 : Contact Form
+    initContactForm(); 
 });
 
