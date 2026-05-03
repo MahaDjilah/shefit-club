@@ -1160,11 +1160,122 @@ section.difficulty p {
 
 
 /* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .contact-map iframe {
+        height: 300px;
+    }
+
+    .contact-form,
+    .contact-table,
+    .contact-form + section {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-form button {
+        font-size: 16px;
+        padding: 12px;
+    }
+}
 
 
+/* ================= TABLET ================= */
+@media (max-width:1023px){
+
+#navigation{
+    position: static;
+}
+
+/* HERO */
+#hero header h1{
+  font-size:60pt;
+}
+
+/* Facilities */
+.facilities-box{
+  width:45%;
+}
+
+/* Trainers */
+.trainers-grid{
+  grid-template-columns: repeat(2,1fr);
+}
+
+/* Membership cards */
+.membership-card{
+  flex:1 1 45%;
+}
+
+}
 
 
+/* ================= MOBILE ================= */
+@media (max-width:767px){
 
+/* Navigation */
+#navigation{
+    position: static;
+}
+
+#navigation ul{
+  flex-direction:column;
+  padding:15px;
+  
+}
+
+#navigation ul li{
+  margin:8px 0;
+}
+
+/* HERO */
+#hero{
+  height:40ch;
+}
+
+#hero header h1{
+  font-size:40pt;
+}
+
+#hero header p{
+  font-size:150%;
+}
+
+/* Facilities */
+.facilities-box{
+  width:100%;
+}
+
+/* Trainers */
+.trainers-grid{
+  grid-template-columns:1fr;
+}
+
+/* Membership */
+.membership-card{
+  max-width:100%;
+}
+
+/* Footer */
+footer .footer-sections{
+  flex-direction:column;
+  align-items:center;
+}
+
+}
+
+button,
+a{
+  min-height:44px;
+}
+
+.activity-dashboard td button,
+.activity-dashboard td a {
+    min-height: unset;
+    padding: 5px 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
 
 /* ----------------------- ADMIN w DASHBOARD HEADER--------  */
 
@@ -1415,16 +1526,14 @@ section.difficulty p {
 /* --------- ACTION COLUMN (EDIT / DELETE) --------- */
 .activity-dashboard th:last-child,
 .activity-dashboard td:last-child {
-    width: 220px;
+    width: 150px;
     text-align: center;
-    white-space: nowrap;
 }
 
-/* Status column (second to last) */
-.activity-dashboard th:nth-last-child(2),
-.activity-dashboard td:nth-last-child(2) {
-    width: 100px;
-    text-align: center;
+/* BUTTONS INSIDE LAST COLUMN */
+.activity-dashboard td:last-child {
+    white-space: nowrap;
+    width: 220px;
 }
 
 /* EDIT BUTTON */
@@ -1620,7 +1729,180 @@ section.difficulty p {
 /* --------------- RESPONSIVEEE------------------------------------------------------------ */
 
 /* ---------------- TABLETTE ---------------- */
+@media (max-width: 1023px) {
 
+    /* Navigation */
+    #navigation {
+        position: static;
+    }
+
+    /* Hero */
+    #hero header h1 {
+        font-size: 60pt;
+    }
+
+    /* Facilities */
+    .facilities-box {
+        width: 45%;
+    }
+
+    /* Trainers */
+    .trainers-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Membership cards */
+    .membership-card {
+        flex: 1 1 45%;
+    }
+
+    /* Tables */
+    .table-plan table,
+    .table-plan th,
+    .table-plan td {
+        font-size: 14px;
+    }
+
+    .new-plan {
+        padding: 25px;
+    }
+
+    /* Dashboard stats */
+    .stat-dashboard ul {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ---------------- MOBILE ---------------- */
+@media (max-width: 767px) {
+
+    /* Navigation */
+    #navigation {
+        position: static;
+    }
+
+    #navigation ul {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    #navigation ul li {
+        margin: 8px 0;
+    }
+
+    /* Hero */
+    #hero {
+        height: 40ch;
+    }
+
+    #hero header h1 {
+        font-size: 40pt;
+    }
+
+    #hero header p {
+        font-size: 150%;
+    }
+
+    /* Facilities */
+    .facilities-box {
+        width: 100%;
+    }
+
+    /* Trainers */
+    .trainers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Membership cards */
+    .membership-card {
+        max-width: 100%;
+    }
+
+    /* Footer */
+    footer .footer-sections {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Tables admin plan */
+    .table-plan table,
+    .table-plan th,
+    .table-plan td {
+        font-size: 13px;
+    }
+
+    .new-plan {
+        padding: 20px;
+        margin: 20px 10px;
+    }
+
+    /* Contact */
+    .contact-map iframe,
+    .contact-form,
+    .contact-table,
+    .contact-form + section {
+        padding: 20px;
+    }
+
+    .contact-map iframe {
+        height: 300px;
+    }
+
+    .contact-form button {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    
+    body > div {
+        flex-direction: column;
+    }
+
+    .nav-dashboard {
+        min-height: auto;
+        width: 100%;
+    }
+
+    .nav-dashboard ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .nav-dashboard li {
+        margin: 0;
+    }
+
+   
+    .stat-dashboard ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    footer .footer-sections {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-map iframe {
+        height: 300px;
+    }
+
+    .contact-form,
+    .contact-table,
+    .contact-form + section {
+        padding: 20px;
+    }
+}
+
+
+button,
+a {
+    min-height: 44px;
+}
 
 /*-----form membership----- */
 
@@ -1947,7 +2229,19 @@ section.difficulty p {
 .intermediate { background: #E67E22; }
 .advanced { background: #CF0F0F; }
 
+/* Responsive */
+@media (max-width: 992px) {
+    #admin-classes-table th,
+    #admin-classes-table td {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
 
+    .btn-edit, .btn-delete {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+}
 
 
 /* Chart container */
@@ -2023,321 +2317,3 @@ section.difficulty p {
 }
 
 
-/* ============================================================
-   RESPONSIVE DESIGN — MOBILE-FIRST
-   Breakpoints:
-     Mobile  : default (< 768px)
-     Tablet  : min-width: 768px  (up to 1023px)
-     Desktop : min-width: 1024px
-   ============================================================ */
-
-/* ------------------------------------------------------------------
-   GLOBAL — touch-friendly tap targets (mobile-first base rule)
------------------------------------------------------------------- */
-button, a {
-    min-height: 44px;
-}
-
-/* ------------------------------------------------------------------
-   TABLET — min-width: 768px
------------------------------------------------------------------- */
-@media (min-width: 768px) {
-
-    /* ── Navigation ── */
-    #navigation ul {
-        flex-direction: row;
-        padding: 0 20px;
-    }
-
-    #navigation ul li {
-        margin: 0;
-    }
-
-    /* ── Hero ── */
-    #hero header h1 {
-        font-size: 60pt;
-    }
-
-    /* ── Facilities — 2 columns (Flexbox) ── */
-    .facilities-box {
-        width: 45%;
-    }
-
-    /* ── Trainers grid — 2 columns (CSS Grid) ── */
-    .trainers-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* ── Membership cards — 2 columns (Flexbox) ── */
-    #membership-plans-section {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .membership-card {
-        flex: 1 1 45%;
-        max-width: 48%;
-    }
-
-    /* ── Footer — 2 columns ── */
-    footer .footer-sections {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: flex-start;
-    }
-
-    /* ── Contact — 2 columns ── */
-    .contact-layout {
-        display: flex;
-        gap: 30px;
-    }
-    .contact-layout > * {
-        flex: 1;
-    }
-
-    /* ── Admin dashboard stats — 2×2 grid ── */
-    .stat-dashboard ul {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* ── Admin tables ── */
-    .table-plan table,
-    .table-plan th,
-    .table-plan td {
-        font-size: 14px;
-    }
-
-    .new-plan {
-        padding: 25px;
-    }
-
-    /* ── Admin classes table ── */
-    #admin-classes-table th,
-    #admin-classes-table td {
-        font-size: 0.9rem;
-        padding: 8px;
-    }
-
-    .btn-edit, .btn-delete {
-        font-size: 11px;
-        padding: 5px 8px;
-    }
-}
-
-/* ------------------------------------------------------------------
-   DESKTOP — min-width: 1024px
------------------------------------------------------------------- */
-@media (min-width: 1024px) {
-
-    /* ── Navigation — sticky full row ── */
-    #navigation {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
-    /* ── Hero ── */
-    #hero {
-        height: 60ch;
-    }
-
-    #hero header h1 {
-        font-size: 80pt;
-    }
-
-    /* ── Facilities — 3 columns (CSS Grid) ── */
-    .facilities-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-    }
-
-    .facilities-box {
-        width: auto;
-    }
-
-    /* ── Trainers grid — 3 columns ── */
-    .trainers-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    /* ── Membership cards — 3 columns (Flexbox) ── */
-    .membership-card {
-        flex: 1 1 30%;
-        max-width: 32%;
-    }
-
-    /* ── Footer — 3 columns (Flexbox) ── */
-    footer .footer-sections {
-        flex-wrap: nowrap;
-        justify-content: space-between;
-    }
-
-    /* ── Contact — form left, info right ── */
-    .contact-layout {
-        gap: 50px;
-    }
-
-    /* ── Admin sidebar layout — fixed left sidebar ── */
-    .nav-dashboard {
-        min-height: 100vh;
-        width: 220px;
-        flex-shrink: 0;
-    }
-
-    /* ── Admin dashboard stats — 4 columns (CSS Grid) ── */
-    .stat-dashboard ul {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    /* ── Admin tables full size ── */
-    .table-plan table,
-    .table-plan th,
-    .table-plan td {
-        font-size: 15px;
-    }
-
-    .new-plan {
-        padding: 30px;
-    }
-
-    #admin-classes-table th,
-    #admin-classes-table td {
-        font-size: 1rem;
-        padding: 10px;
-    }
-}
-
-/* ------------------------------------------------------------------
-   MOBILE-ONLY overrides (< 768px) — applied at base, no @media needed
-   but declared here for clarity and documentation
------------------------------------------------------------------- */
-@media (max-width: 767px) {
-
-    /* ── Navigation — stack vertically, hamburger placeholder ── */
-    #navigation {
-        position: static;
-    }
-
-    #navigation ul {
-        flex-direction: column;
-        padding: 15px;
-        gap: 4px;
-    }
-
-    #navigation ul li {
-        margin: 4px 0;
-    }
-
-    /* nav-auth pushed to right becomes inline on mobile */
-    #navigation ul li.nav-auth,
-    #navigation ul li.nav-auth-next {
-        margin-left: 0;
-    }
-
-    /* ── Hero ── */
-    #hero {
-        height: 40ch;
-    }
-
-    #hero header h1 {
-        font-size: 38pt;
-    }
-
-    #hero header p {
-        font-size: 130%;
-    }
-
-    /* ── Facilities — single column ── */
-    .facilities-box {
-        width: 100%;
-    }
-
-    /* ── Trainers — single column ── */
-    .trainers-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* ── Membership cards — full width ── */
-    .membership-card {
-        flex: 1 1 100%;
-        max-width: 100%;
-    }
-
-    /* ── Footer — single column ── */
-    footer .footer-sections {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-    }
-
-    /* ── Contact ── */
-    .contact-layout {
-        flex-direction: column;
-    }
-
-    .contact-map iframe {
-        height: 250px;
-    }
-
-    .contact-form button {
-        font-size: 16px;
-        padding: 12px;
-        width: 100%;
-    }
-
-    /* ── Admin sidebar → top nav bar on mobile ── */
-    body > div {
-        flex-direction: column;
-    }
-
-    .nav-dashboard {
-        min-height: auto;
-        width: 100%;
-    }
-
-    .nav-dashboard ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 10px;
-    }
-
-    .nav-dashboard li {
-        margin: 0;
-    }
-
-    .nav-dashboard a {
-        padding: 6px 12px;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-    }
-
-    /* ── Admin stats — single column ── */
-    .stat-dashboard ul {
-        grid-template-columns: 1fr;
-    }
-
-    /* ── Admin tables — smaller font ── */
-    .table-plan table,
-    .table-plan th,
-    .table-plan td,
-    #admin-classes-table th,
-    #admin-classes-table td,
-    .activity-dashboard th,
-    .activity-dashboard td {
-        font-size: 12px;
-        padding: 6px;
-    }
-
-    .new-plan {
-        padding: 15px;
-        margin: 15px 10px;
-    }
-
-    /* ── Members table — scrollable on mobile ── */
-    .activity-dashboard {
-        overflow-x: auto;
-    }
-}

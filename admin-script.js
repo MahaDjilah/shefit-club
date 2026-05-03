@@ -1,8 +1,7 @@
-// ====================== CONSTANTS & INITIAL DATA ======================
 const MEMBERS_KEY = "shefit_members";
 const CLASSES_KEY = "shefit_classes";
 
-// Initial Data
+
 const initialMembers = [
     { id: 1, name: "Nour Benbadis", email: "nour@mail.com", phone: "0550000000", plan: "Bronze", date: "01-03-2026" },
     { id: 2, name: "Aya Hmid", email: "aya@mail.com", phone: "0660000000", plan: "Silver", date: "02-03-2026" },
@@ -23,7 +22,7 @@ const initialClasses = [
 let members = [];
 let classes = [];
 
-// ====================== LOAD / SAVE ======================
+
 function loadData(key, initial) {
     const saved = localStorage.getItem(key);
     if (saved) return JSON.parse(saved);
@@ -35,7 +34,7 @@ function saveData(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
 }
 
-// ====================== COMMON CANCEL FUNCTION ======================
+
 function cancelEdit(rowId) {
     if (rowId === "new-class-row") {
         const row = document.getElementById("new-class-row");
@@ -46,14 +45,13 @@ function cancelEdit(rowId) {
     }
 }
 
-// ====================== MEMBERS MANAGEMENT ======================
+
 function renderMembers(filtered = members) {
-    // Le tableau members est rendu par PHP (statut + ban/unban/delete).
-    // Cette fonction ne modifie plus le DOM — elle reste pour updateDashboardStats/updateChart.
+    
 }
 
-function startEditMember(index, btn) { return; /* handled by PHP */
-    // kept for compatibility
+function startEditMember(index, btn) { return; 
+    
     const row = btn.parentElement.parentElement;
     const m = members[index];
 
@@ -128,7 +126,7 @@ function toggleForm() {
     if (form) form.style.display = form.style.display === "none" ? "block" : "none";
 }
 
-// ====================== CLASSES MANAGEMENT ======================
+// ------------------CLASSES MANAGEMENT -------------------------------------------------------
 function renderAdminClasses() {
     const tbody = document.getElementById("admin-classes-tbody");
     if (!tbody) return;
@@ -181,7 +179,7 @@ function addClass(e) {
     );
 
     if (isDuplicate) {
-        alert("❌ Impossible d'ajouter cette classe !\n\nUn cours avec le même entraîneur existe déjà le même jour à la même heure.");
+        alert("You can not add this Class !\n\na course with same trainer exist with same day and hour.");
         return;
     }
 
@@ -203,7 +201,7 @@ function addClass(e) {
     toggleClassForm();
     document.getElementById("classForm").reset();
 
-    alert("✅ Classe ajoutée avec succès !");
+    alert("Class Added successfully");
 }
 
 function saveNewClass() {
@@ -216,14 +214,14 @@ function saveNewClass() {
     const capacity = parseInt(document.getElementById("new-capacity").value) || 15;
 
     if (!name || !trainer || !day || !time || isNaN(duration)) {
-        alert("Veuillez remplir tous les champs obligatoires");
+        alert("Please fill in all required fields.");
         return;
     }
 
     const newClass = { id: Date.now(), name, trainer, day, time, duration, difficulty, capacity };
 
     if (classes.some(c => c.trainer === trainer && c.day === day && c.time === time)) {
-        alert("❌ Cette classe existe déjà (même trainer, jour et heure) !");
+        alert("This class already exists (same trainer, day, and time)!");
         return;
     }
 
@@ -277,7 +275,7 @@ function saveEditClass(index) {
         c.trainer === updatedClass.trainer && 
         c.day === updatedClass.day && 
         c.time === updatedClass.time)) {
-        alert("❌ Conflit de doublon !");
+        alert("Duplicate conflict");
         renderAdminClasses();
         return;
     }
@@ -289,23 +287,20 @@ function saveEditClass(index) {
 }
 
 function deleteClass(id) {
-    if (!confirm("Supprimer cette classe ?")) return;
+    if (!confirm("Delete this class?")) return;
     classes = classes.filter(c => c.id !== id);
     saveData(CLASSES_KEY, classes);
     renderAdminClasses();
     updateDashboardStats();
 }
 
-// ====================== STATS & CHART ======================
+// ---------------------------STATS & CHART -----------------------
 function updateDashboardStats(filteredData = members) {
-    // Stats globales (Total Members, Active Subs, Classes, Popular Plan)
-    // sont rendues par PHP depuis MySQL au chargement — on ne les écrase pas ici.
-    // Seul le chart est mis à jour par updateChart().
+    
 }
 
 function updateChart(filteredData = members) {
-    // Chart bars are rendered by PHP from MySQL with correct heights.
-    // When filtering, update from visible member rows in the DOM.
+    
     const rows = document.querySelectorAll('.member-row');
     if (!rows.length) return;
 
@@ -313,12 +308,12 @@ function updateChart(filteredData = members) {
     const counts = { Bronze: 0, Silver: 0, Gold: 0 };
 
     if (isFiltered) {
-        // Use passed data (already filtered)
+       
         filteredData.forEach(m => {
             if (counts[m.plan] !== undefined) counts[m.plan]++;
         });
     } else {
-        // Read original PHP values from data attributes on bars
+        
         ['Bronze','Silver','Gold'].forEach(plan => {
             const bar = document.getElementById('bar-' + plan.toLowerCase());
             if (bar && bar.dataset.count !== undefined) {
@@ -333,7 +328,7 @@ function updateChart(filteredData = members) {
     document.getElementById('bar-gold').style.height   = (counts.Gold   / max * 200) + 'px';
 }
 
-// ====================== INITIALISATION ======================
+
 function initAdmin() {
     members = loadData(MEMBERS_KEY, initialMembers);
     classes = loadData(CLASSES_KEY, initialClasses);
@@ -341,14 +336,14 @@ function initAdmin() {
     renderMembers();
     renderAdminClasses();
 
-    // Members Form
+    
     document.getElementById("memberForm")?.addEventListener("submit", addMember);
 
-    // Add Class Button
+    
     document.getElementById("add-class-btn")?.addEventListener("click", toggleClassForm);
     document.getElementById("classForm")?.addEventListener("submit", addClass);
 
-    // === SEARCH & FILTER (MAINTENANT MISE À JOUR DES STATS) ===
+   
     const searchInput = document.getElementById("searchMember");
     const planFilter = document.getElementById("filterPlan");
 
@@ -380,10 +375,10 @@ function initAdmin() {
 
     updateDashboardStats();
     updateChart();
-    console.log("✅ Admin Dashboard chargé avec succès (filtres + stats dynamiques OK)");
+    console.log("Admin Dashboard chargé (filtres + stats dynamiques)");
 }
 
-// Public Classes Page
+
 function initPublicClasses() {
     classes = loadData(CLASSES_KEY, initialClasses);
     const tbody = document.getElementById("classes-tbody");
@@ -404,7 +399,7 @@ function initPublicClasses() {
     });
 }
 
-// ====================== START ======================
+
 document.addEventListener("DOMContentLoaded", () => {
     if (document.title.toLowerCase().includes("admin") || document.getElementById("admin-classes-tbody")) {
         initAdmin();

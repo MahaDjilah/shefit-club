@@ -9,7 +9,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 
 // Stats depuis la BD
 $total_members = $pdo->query("SELECT COUNT(*) FROM users WHERE role='member'")->fetchColumn();
-$active_subs   = $pdo->query("SELECT COUNT(*) FROM memberships WHERE status='active'")->fetchColumn();
+$active_subs = $pdo->query("
+    SELECT COUNT(*) FROM memberships m
+    JOIN users u ON m.user_id = u.id
+    WHERE m.status = 'active' AND u.status = 'active'
+")->fetchColumn();
 $total_classes = $pdo->query("SELECT COUNT(*) FROM classes")->fetchColumn();
 
 // Plan le plus populaire
