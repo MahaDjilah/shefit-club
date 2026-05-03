@@ -386,16 +386,19 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
         <h2>Members by Plan</h2>
         <div class="chart">
             <div class="bar bronze" id="bar-bronze"
+                 data-count="<?= $planCounts['Bronze'] ?>"
                  style="background-color: #cd7f32; height: <?= ($planCounts['Bronze']/$max*200) ?>px">
-                <span>Bronze</span>
+                <span>Bronze (<?= $planCounts['Bronze'] ?>)</span>
             </div>
             <div class="bar silver" id="bar-silver"
+                 data-count="<?= $planCounts['Silver'] ?>"
                  style="background-color: #c0c0c0; height: <?= ($planCounts['Silver']/$max*200) ?>px">
-                <span>Silver</span>
+                <span>Silver (<?= $planCounts['Silver'] ?>)</span>
             </div>
             <div class="bar gold" id="bar-gold"
+                 data-count="<?= $planCounts['Gold'] ?>"
                  style="background-color: #ffd700; height: <?= ($planCounts['Gold']/$max*200) ?>px">
-                <span>Gold</span>
+                <span>Gold (<?= $planCounts['Gold'] ?>)</span>
             </div>
         </div>
     </section>
@@ -492,19 +495,45 @@ function filterMembers() {
     const revDash  = document.getElementById('rev-dash');
 
     if (membDash) membDash.textContent = isFiltered
-        ? `Total Members: ${visible} `
+        ? `Total Members: ${visible}`
         : membDash.dataset.original || membDash.textContent;
 
     if (subDash) subDash.textContent = isFiltered
-        ? `Active Subscriptions: ${activeSubs} `
+        ? `Active Subscriptions: ${activeSubs}`
         : subDash.dataset.original || subDash.textContent;
 
     if (revDash && isFiltered) {
         const popular = Object.keys(planCount).sort((a,b) => planCount[b] - planCount[a])[0] || '-';
-        revDash.textContent = `Most Popular Plan: ${popular} `;
+        revDash.textContent = `Most Popular Plan: ${popular}`;
     } else if (revDash && !isFiltered) {
         revDash.textContent = revDash.dataset.original || revDash.textContent;
     }
+
+    // Update chart bars from filtered data
+    const chartPlans = { Bronze: 0, Silver: 0, Gold: 0 };
+    if (isFiltered) {
+        document.querySelectorAll('.member-row').forEach(row => {
+            if (row.style.display !== 'none') {
+                const p = row.dataset.plan || '';
+                if (chartPlans[p] !== undefined) chartPlans[p]++;
+            }
+        });
+    } else {
+        // Restore original PHP counts from data-count
+        ['Bronze','Silver','Gold'].forEach(p => {
+            const bar = document.getElementById('bar-' + p.toLowerCase());
+            if (bar) chartPlans[p] = parseInt(bar.dataset.count) || 0;
+        });
+    }
+    const chartMax = Math.max(...Object.values(chartPlans), 1);
+    ['bronze','silver','gold'].forEach(p => {
+        const bar = document.getElementById('bar-' + p);
+        const key = p.charAt(0).toUpperCase() + p.slice(1);
+        if (bar) {
+            bar.style.height = (chartPlans[key] / chartMax * 200) + 'px';
+            bar.querySelector('span').textContent = key + ' (' + chartPlans[key] + ')';
+        }
+    });
 }
 
 // Sauvegarder les valeurs originales PHP au chargement

@@ -304,19 +304,33 @@ function updateDashboardStats(filteredData = members) {
 }
 
 function updateChart(filteredData = members) {
+    // Chart bars are rendered by PHP from MySQL with correct heights.
+    // When filtering, update from visible member rows in the DOM.
+    const rows = document.querySelectorAll('.member-row');
+    if (!rows.length) return;
+
+    const isFiltered = filteredData !== members;
     const counts = { Bronze: 0, Silver: 0, Gold: 0 };
 
-    filteredData.forEach(m => {
-        if (counts[m.plan] !== undefined) {
-            counts[m.plan]++;
-        }
-    });
+    if (isFiltered) {
+        // Use passed data (already filtered)
+        filteredData.forEach(m => {
+            if (counts[m.plan] !== undefined) counts[m.plan]++;
+        });
+    } else {
+        // Read original PHP values from data attributes on bars
+        ['Bronze','Silver','Gold'].forEach(plan => {
+            const bar = document.getElementById('bar-' + plan.toLowerCase());
+            if (bar && bar.dataset.count !== undefined) {
+                counts[plan] = parseInt(bar.dataset.count) || 0;
+            }
+        });
+    }
 
     const max = Math.max(counts.Bronze, counts.Silver, counts.Gold, 1);
-
-    document.getElementById("bar-bronze").style.height = (counts.Bronze / max * 200) + "px";
-    document.getElementById("bar-silver").style.height = (counts.Silver / max * 200) + "px";
-    document.getElementById("bar-gold").style.height = (counts.Gold / max * 200) + "px";
+    document.getElementById('bar-bronze').style.height = (counts.Bronze / max * 200) + 'px';
+    document.getElementById('bar-silver').style.height = (counts.Silver / max * 200) + 'px';
+    document.getElementById('bar-gold').style.height   = (counts.Gold   / max * 200) + 'px';
 }
 
 // ====================== INITIALISATION ======================
