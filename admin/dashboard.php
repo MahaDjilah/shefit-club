@@ -233,12 +233,9 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
                 <option value="active">Active</option>
                 <option value="banned">Banned</option>
             </select>
-            <span id="member-count"
-                  style="padding:8px 14px;background:#415A77;color:white;border-radius:6px;font-weight:bold;">
-                <?= $total_rows ?> member(s)
-            </span>
+            
             <button onclick="document.getElementById('searchMember').value='';document.getElementById('filterPlan').value='All';document.getElementById('filterStatus').value='All';filterMembers();"
-                    style="background:#aaa;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;">Clear</button>
+                    style="background:#415A77;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;">Clear</button>
         </div>
 
         <!-- Bouton Add Member -->
@@ -451,24 +448,28 @@ function filterMembers() {
     const plan   = document.getElementById('filterPlan').value;
     const status = document.getElementById('filterStatus').value;
 
-    const rows   = document.querySelectorAll('.member-row');
-    let visible  = 0;
+    const rows      = document.querySelectorAll('.member-row');
+    let visible     = 0;
+    let activeSubs  = 0;
+    const planCount = {};
 
     rows.forEach(row => {
-        const name  = row.dataset.name  || '';
-        const email = row.dataset.email || '';
-        const rPlan = row.dataset.plan  || '';
+        const name  = row.dataset.name   || '';
+        const email = row.dataset.email  || '';
+        const rPlan = row.dataset.plan   || '';
         const rStat = row.dataset.status || 'active';
 
         const matchSearch = !search || name.includes(search) || email.includes(search);
-        const matchPlan   = plan === 'All'   || rPlan === plan;
+        const matchPlan   = plan   === 'All' || rPlan === plan;
         const matchStatus = status === 'All' || rStat === status;
 
-        // Also hide the edit row below it
         const editRow = row.nextElementSibling;
+
         if (matchSearch && matchPlan && matchStatus) {
             row.style.display = '';
             visible++;
+            if (rStat === 'active') activeSubs++;
+            planCount[rPlan] = (planCount[rPlan] || 0) + 1;
         } else {
             row.style.display = 'none';
             if (editRow && editRow.id && editRow.id.startsWith('edit-m-')) {
@@ -477,11 +478,42 @@ function filterMembers() {
         }
     });
 
+    // Mise à jour compteur tableau
     const countEl = document.getElementById('visible-count');
     const badgeEl = document.getElementById('member-count');
     if (countEl) countEl.textContent = visible;
     if (badgeEl) badgeEl.textContent = visible + ' member(s)';
+
+    // Mise à jour Summary Stats dynamique
+    const isFiltered = search !== '' || plan !== 'All' || status !== 'All';
+
+    const membDash = document.getElementById('memb-dash');
+    const subDash  = document.getElementById('sub-dash');
+    const revDash  = document.getElementById('rev-dash');
+
+    if (membDash) membDash.textContent = isFiltered
+        ? `Total Members: ${visible} `
+        : membDash.dataset.original || membDash.textContent;
+
+    if (subDash) subDash.textContent = isFiltered
+        ? `Active Subscriptions: ${activeSubs} `
+        : subDash.dataset.original || subDash.textContent;
+
+    if (revDash && isFiltered) {
+        const popular = Object.keys(planCount).sort((a,b) => planCount[b] - planCount[a])[0] || '-';
+        revDash.textContent = `Most Popular Plan: ${popular} `;
+    } else if (revDash && !isFiltered) {
+        revDash.textContent = revDash.dataset.original || revDash.textContent;
+    }
 }
+
+// Sauvegarder les valeurs originales PHP au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    ['memb-dash','sub-dash','class-dash','rev-dash'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.dataset.original = el.textContent;
+    });
+});
 
 document.getElementById('searchMember').addEventListener('input',  filterMembers);
 document.getElementById('filterPlan').addEventListener('change',   filterMembers);

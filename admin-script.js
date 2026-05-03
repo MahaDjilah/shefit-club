@@ -296,23 +296,11 @@ function deleteClass(id) {
     updateDashboardStats();
 }
 
-// ====================== STATS & CHART (CORRIGÉ) ======================
 // ====================== STATS & CHART ======================
 function updateDashboardStats(filteredData = members) {
-    const total = filteredData.length;
-
-    // Ces deux stats changent avec le filtre (comme demandé dans le cahier des charges)
-    document.getElementById("memb-dash").textContent = `Total Members: ${total}`;
-    document.getElementById("sub-dash").textContent = `Active Subscriptions: ${total}`;
-    document.getElementById("class-dash").textContent = `Classes per Week: ${classes.length}`;
-
-    // === MOST POPULAR PLAN reste TOUJOURS global (même après filtre) ===
-    const counts = {};
-    members.forEach(m => {                    // ← on utilise "members" et pas filteredData
-        counts[m.plan] = (counts[m.plan] || 0) + 1;
-    });
-    const popular = Object.keys(counts).sort((a,b) => counts[b] - counts[a])[0] || "-";
-    document.getElementById("rev-dash").textContent = `Most Popular Plan: ${popular}`;
+    // Stats globales (Total Members, Active Subs, Classes, Popular Plan)
+    // sont rendues par PHP depuis MySQL au chargement — on ne les écrase pas ici.
+    // Seul le chart est mis à jour par updateChart().
 }
 
 function updateChart(filteredData = members) {
