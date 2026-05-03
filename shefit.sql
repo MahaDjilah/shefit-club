@@ -1,12 +1,7 @@
--- ============================================================
---  SheFit Club – Base de données
---  Importer : phpMyAdmin > shefit_db > Importer > shefit.sql
--- ============================================================
-
 CREATE DATABASE IF NOT EXISTS shefit_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE shefit_db;
 
--- USERS
+
 CREATE TABLE IF NOT EXISTS users (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     full_name     VARCHAR(100) NOT NULL,
@@ -19,11 +14,11 @@ CREATE TABLE IF NOT EXISTS users (
     created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Admin par défaut : email = admin@shefit.com | mot de passe = admin123
+
 INSERT INTO users (full_name, email, password_hash, role) VALUES
 ('Admin SheFit', 'admin@shefit.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
--- 5 membres de test (mot de passe = password)
+
 INSERT INTO users (full_name, email, password_hash, phone, dob, role) VALUES
 ('Nour Benbadis',  'nour@mail.com',    '$2y$10$TKh8H1.PtIK1KlJRbBjT1.G6Q9O0rV5p7Z8VjJ2cKdOH/A.NQNKPG', '0550000000', '1998-05-10', 'member'),
 ('Aya Hmid',       'aya@mail.com',     '$2y$10$TKh8H1.PtIK1KlJRbBjT1.G6Q9O0rV5p7Z8VjJ2cKdOH/A.NQNKPG', '0660000000', '2000-03-22', 'member'),
@@ -31,7 +26,7 @@ INSERT INTO users (full_name, email, password_hash, phone, dob, role) VALUES
 ('Fatma Brahimi',  'fatma@mail.com',   '$2y$10$TKh8H1.PtIK1KlJRbBjT1.G6Q9O0rV5p7Z8VjJ2cKdOH/A.NQNKPG', '0551111111', '1997-07-15', 'member'),
 ('Malika Souilah', 'malika@mail.com',  '$2y$10$TKh8H1.PtIK1KlJRbBjT1.G6Q9O0rV5p7Z8VjJ2cKdOH/A.NQNKPG', '0662222222', '1999-01-30', 'member');
 
--- PLANS
+
 CREATE TABLE IF NOT EXISTS plans (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     name            VARCHAR(50) NOT NULL,
@@ -54,7 +49,7 @@ INSERT INTO plans (name, price, duration_months, description, features) VALUES
  'The complete SheFit Club experience with unlimited access and exclusive benefits.',
  'All-access pass to all gym facilities;Unlimited Group Classes;Pre/Postnatal Fitness Room;Personal Training Sessions;Exclusive Wellness Perks;VIP Member Benefits;Free Nutrition Consultation');
 
--- MEMBERSHIPS
+
 CREATE TABLE IF NOT EXISTS memberships (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     user_id    INT NOT NULL,
@@ -66,7 +61,7 @@ CREATE TABLE IF NOT EXISTS memberships (
     FOREIGN KEY (plan_id) REFERENCES plans(id)
 );
 
--- Abonnements des 5 membres de test
+
 INSERT INTO memberships (user_id, plan_id, start_date, end_date, status) VALUES
 (2, 1, '2026-03-01', '2026-04-01', 'active'),
 (3, 2, '2026-03-02', '2026-04-02', 'active'),
@@ -74,7 +69,7 @@ INSERT INTO memberships (user_id, plan_id, start_date, end_date, status) VALUES
 (5, 2, '2026-03-04', '2026-04-04', 'active'),
 (6, 3, '2026-03-05', '2026-04-05', 'active');
 
--- TRAINERS
+
 CREATE TABLE IF NOT EXISTS trainers (
     id               INT AUTO_INCREMENT PRIMARY KEY,
     name             VARCHAR(100) NOT NULL,
@@ -92,7 +87,7 @@ INSERT INTO trainers (name, specialty, bio, photo_path, years_experience) VALUES
 ('Sofia M.',  'Paddle Training Coach',       'Sofia coaches paddle training sessions that improve coordination, reaction speed, and agility.',                                     'images/sofia.jpg',       4),
 ('Farah B.',  'Strength Training Coach',     'Farah specializes in strength and resistance training. She helps members build muscle and improve endurance safely.',               'images/farah (2).jpg',   8);
 
--- CLASSES
+
 CREATE TABLE IF NOT EXISTS classes (
     id               INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id       INT NOT NULL,
@@ -113,7 +108,7 @@ INSERT INTO classes (trainer_id, name, day_of_week, start_time, duration_minutes
 (5, 'Paddle Training',    'Friday',    '16:00:00', 60, 'Intermediate', 14),
 (6, 'Strength Training',  'Saturday',  '10:00:00', 50, 'Advanced',     16);
 
--- CLASS BOOKINGS
+
 CREATE TABLE IF NOT EXISTS class_bookings (
     id        INT AUTO_INCREMENT PRIMARY KEY,
     user_id   INT NOT NULL,
@@ -124,7 +119,7 @@ CREATE TABLE IF NOT EXISTS class_bookings (
     FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE
 );
 
--- CONTACT MESSAGES
+
 CREATE TABLE IF NOT EXISTS contact_messages (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(100) NOT NULL,
