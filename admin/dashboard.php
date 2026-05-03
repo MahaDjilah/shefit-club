@@ -54,19 +54,117 @@ if (isset($_GET['delete_member'])) {
     header("Location: dashboard.php"); exit;
 }
 
-// Charger les membres depuis MySQL (avec status)
-$membersFromDB = $pdo->query("
+// CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
+
+// ── Add member ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
+    if (($_POST['csrf_token'] ?? '') === $csrf_token) {
+        $fname = trim($_POST['full_name'] ?? '');
+        $email = trim($_POST['email']     ?? '');
+        $phone = trim($_POST['phone']     ?? '');
+        $plan  = (int)($_POST['plan_id']  ?? 0);
+        $start = $_POST['start_date']     ?? date('Y-m-d');
+        if ($fname && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $ex = $pdo->prepare("SELECT id FROM users WHERE email=?");
+            $ex->execute([$email]);
+            if (!$ex->fetch()) {
+                $hash = password_hash('Shefit2026!', PASSWORD_DEFAULT);
+                $pdo->prepare("INSERT INTO users (full_name,email,password_hash,phone) VALUES (?,?,?,?)")
+                    ->execute([$fname, $email, $hash, $phone]);
+                $uid = $pdo->lastInsertId();
+                if ($plan) {
+                    $pr = $pdo->prepare("SELECT duration_months FROM plans WHERE id=?");
+                    $pr->execute([$plan]);
+                    $dur = (int)($pr->fetchColumn() ?: 1);
+                    $end = date('Y-m-d', strtotime("+{$dur} month", strtotime($start)));
+                    $pdo->prepare("INSERT INTO memberships (user_id,plan_id,start_date,end_date,status) VALUES (?,?,?,?,'active')")
+                        ->execute([$uid, $plan, $start, $end]);
+                }
+            }
+        }
+    }
+    header("Location: dashboard.php"); exit;
+}
+
+// ── Edit member ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_member'])) {
+    if (($_POST['csrf_token'] ?? '') === $csrf_token) {
+        $mid   = (int)$_POST['member_id'];
+        $fname = trim($_POST['full_name'] ?? '');
+        $phone = trim($_POST['phone']     ?? '');
+        $email = trim($_POST['email']     ?? '');
+        if ($fname && $email) {
+            $pdo->prepare("UPDATE users SET full_name=?, phone=?, email=? WHERE id=? AND role='member'")
+                ->execute([$fname, $phone, $email, $mid]);
+        }
+    }
+    header("Location: dashboard.php"); exit;
+}
+
+// ── Assign / extend subscription ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_plan'])) {
+    if (($_POST['csrf_token'] ?? '') === $csrf_token) {
+        $mid   = (int)$_POST['member_id'];
+        $pid   = (int)$_POST['plan_id'];
+        $start = $_POST['start_date'] ?? date('Y-m-d');
+        $pr    = $pdo->prepare("SELECT duration_months FROM plans WHERE id=?");
+        $pr->execute([$pid]);
+        $dur = (int)($pr->fetchColumn() ?: 1);
+        $end = date('Y-m-d', strtotime("+{$dur} month", strtotime($start)));
+        $pdo->prepare("UPDATE memberships SET status='cancelled' WHERE user_id=? AND status='active'")
+            ->execute([$mid]);
+        $pdo->prepare("INSERT INTO memberships (user_id,plan_id,start_date,end_date,status) VALUES (?,?,?,?,'active')")
+            ->execute([$mid, $pid, $start, $end]);
+    }
+    header("Location: dashboard.php"); exit;
+}
+
+// Filtres + pagination membres
+$filter_plan   = $_GET['filter_plan']   ?? 'All';
+$filter_status = $_GET['filter_status'] ?? 'All';
+$search_member = trim($_GET['search_member'] ?? '');
+$page          = max(1, (int)($_GET['page'] ?? 1));
+$per_page      = 10;
+$offset        = ($page - 1) * $per_page;
+
+$where  = "WHERE u.role = 'member'";
+$params = [];
+if ($filter_plan !== 'All')   { $where .= " AND p.name = ?";   $params[] = $filter_plan; }
+if ($filter_status !== 'All') { $where .= " AND u.status = ?";  $params[] = $filter_status; }
+if ($search_member !== '') {
+    $where .= " AND (u.full_name LIKE ? OR u.email LIKE ?)";
+    $params[] = "%$search_member%";
+    $params[] = "%$search_member%";
+}
+
+$cnt_stmt = $pdo->prepare("SELECT COUNT(*) FROM users u
+    LEFT JOIN memberships m ON m.user_id=u.id AND m.status='active'
+    LEFT JOIN plans p ON m.plan_id=p.id $where");
+$cnt_stmt->execute($params);
+$total_rows  = (int)$cnt_stmt->fetchColumn();
+$total_pages = max(1, ceil($total_rows / $per_page));
+
+$stmt = $pdo->prepare("
     SELECT u.id, u.full_name AS name, u.email, u.phone,
            u.created_at AS date, u.status,
-           COALESCE(p.name, 'None') AS plan
+           COALESCE(p.name,'None') AS plan,
+           m.id AS membership_id
     FROM users u
-    LEFT JOIN memberships m ON m.user_id = u.id AND m.status = 'active'
-    LEFT JOIN plans p ON m.plan_id = p.id
-    WHERE u.role = 'member'
+    LEFT JOIN memberships m ON m.user_id=u.id AND m.status='active'
+    LEFT JOIN plans p ON m.plan_id=p.id
+    $where
     ORDER BY u.created_at DESC
-")->fetchAll(PDO::FETCH_ASSOC);
+    LIMIT $per_page OFFSET $offset
+");
+$stmt->execute($params);
+$membersFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$allPlans = $pdo->query("SELECT * FROM plans ORDER BY price ASC")->fetchAll();
 
-// Formater pour localStorage (admin-script.js)
+// Pour localStorage (admin-script.js)
 $membersForJS = array_map(function($m) {
     return [
         'id'    => (int)$m['id'],
@@ -77,7 +175,6 @@ $membersForJS = array_map(function($m) {
         'date'  => date('d-m-Y', strtotime($m['date']))
     ];
 }, $membersFromDB);
-
 $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>
 <!DOCTYPE html>
@@ -114,25 +211,85 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
         </ul>
     </section>
 
-    <!-- Members Management – rendu PHP depuis MySQL -->
+    <!-- Members Management – PHP pur depuis MySQL -->
     <section class="activity-dashboard">
-        <h2>Members (<?= count($membersFromDB) ?>)</h2>
+        <h2>Members (<?= $total_rows ?>)</h2>
 
+        <!-- Recherche + Filtres -->
+        <form method="GET" action="dashboard.php" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;align-items:center;">
+            <input type="text" name="search_member" value="<?= htmlspecialchars($search_member) ?>"
+                   placeholder="🔍 Search by name or email"
+                   style="padding:8px 12px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
+            <select name="filter_plan" style="padding:8px;border:1px solid #ccc;border-radius:6px;">
+                <option value="All" <?= $filter_plan==='All'?'selected':'' ?>>All Plans</option>
+                <?php foreach ($allPlans as $ap): ?>
+                <option value="<?= htmlspecialchars($ap['name']) ?>" <?= $filter_plan===$ap['name']?'selected':'' ?>>
+                    <?= htmlspecialchars($ap['name']) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <select name="filter_status" style="padding:8px;border:1px solid #ccc;border-radius:6px;">
+                <option value="All"    <?= $filter_status==='All'   ?'selected':'' ?>>All Status</option>
+                <option value="active" <?= $filter_status==='active'?'selected':'' ?>>Active</option>
+                <option value="banned" <?= $filter_status==='banned'?'selected':'' ?>>Banned</option>
+            </select>
+            <button type="submit" style="background:#415A77;color:white;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;">Filter</button>
+            <?php if ($search_member || $filter_plan!=='All' || $filter_status!=='All'): ?>
+            <a href="dashboard.php" style="background:#aaa;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;">Clear</a>
+            <?php endif; ?>
+        </form>
+
+        <!-- Bouton Add Member -->
+        <button onclick="document.getElementById('add-member-form').style.display='block';this.style.display='none';"
+                style="background:#6b8e23;color:white;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;margin-bottom:15px;">
+            + Add Member
+        </button>
+
+        <!-- Formulaire Add Member -->
+        <div id="add-member-form" style="display:none;background:#f0fff0;padding:15px;border-radius:10px;border:1px solid #90EE90;max-width:640px;margin-bottom:20px;">
+            <h3 style="margin-top:0;color:#4a7c10;">New Member</h3>
+            <p style="font-size:0.85rem;color:#555;">Default password: <strong>Shefit2026!</strong> (member can change it in profile)</p>
+            <form method="POST" action="dashboard.php">
+                <input type="hidden" name="add_member" value="1">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                <input type="text"  name="full_name" placeholder="Full Name *" required
+                       style="width:98%;padding:8px;margin:4px 0;border:1px solid #ccc;border-radius:5px;">
+                <input type="email" name="email" placeholder="Email *" required
+                       style="width:48%;padding:8px;margin:4px 1%;border:1px solid #ccc;border-radius:5px;">
+                <input type="tel"   name="phone" placeholder="Phone"
+                       style="width:48%;padding:8px;margin:4px 1%;border:1px solid #ccc;border-radius:5px;">
+                <select name="plan_id" style="width:48%;padding:8px;margin:4px 1%;border:1px solid #ccc;border-radius:5px;">
+                    <option value="">No plan</option>
+                    <?php foreach ($allPlans as $ap): ?>
+                    <option value="<?= $ap['id'] ?>"><?= htmlspecialchars($ap['name']) ?> – <?= number_format($ap['price']) ?> DZD</option>
+                    <?php endforeach; ?>
+                </select>
+                <input type="date" name="start_date" value="<?= date('Y-m-d') ?>"
+                       style="width:48%;padding:8px;margin:4px 1%;border:1px solid #ccc;border-radius:5px;">
+                <br>
+                <button type="submit"
+                        style="background:#6b8e23;color:white;padding:9px 18px;border:none;border-radius:6px;cursor:pointer;margin-top:8px;">
+                    Save Member
+                </button>
+                <button type="button"
+                        onclick="document.getElementById('add-member-form').style.display='none';"
+                        style="background:#ccc;padding:9px 14px;border:none;border-radius:6px;cursor:pointer;margin-left:5px;">
+                    Cancel
+                </button>
+            </form>
+        </div>
+
+        <!-- Tableau membres -->
         <table>
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Plan</th>
-                    <th>Registered</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>Name</th><th>Email</th><th>Phone</th><th>Plan</th>
+                    <th>Registered</th><th>Status</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($membersFromDB)): ?>
-                    <tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">No members yet.</td></tr>
+                    <tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">No members found.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($membersFromDB as $m): ?>
                 <tr>
@@ -143,34 +300,82 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
                     <td><?= date('d/m/Y', strtotime($m['date'])) ?></td>
                     <td>
                         <?php if (($m['status'] ?? 'active') === 'banned'): ?>
-                            <span style="color:#e74c3c;font-weight:bold;">Banned</span>
+                            <span style="color:#e74c3c;font-weight:bold;">⛔ Banned</span>
                         <?php else: ?>
-                            <span style="color:green;font-weight:bold;">Active</span>
+                            <span style="color:green;font-weight:bold;">✓ Active</span>
                         <?php endif; ?>
                     </td>
                     <td style="white-space:nowrap;">
+                        <button onclick="document.getElementById('edit-m-<?= $m['id'] ?>').style.display='block';this.style.display='none';"
+                                style="background:#4a90e2;color:white;padding:4px 9px;border:none;border-radius:5px;cursor:pointer;font-size:13px;margin-right:3px;">
+                            Edit
+                        </button>
                         <?php if (($m['status'] ?? 'active') === 'banned'): ?>
                             <a href="dashboard.php?unban=<?= $m['id'] ?>"
-                               style="background:#6b8e23;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;font-size:13px;margin-right:3px;display:inline-block;">
-                                Unban
-                            </a>
+                               style="background:#6b8e23;color:white;padding:4px 9px;border-radius:5px;text-decoration:none;font-size:13px;margin-right:3px;display:inline-block;">Unban</a>
                         <?php else: ?>
                             <a href="dashboard.php?ban=<?= $m['id'] ?>"
                                onclick="return confirm('Ban <?= htmlspecialchars(addslashes($m['name'])) ?>?')"
-                               style="background:#e67e22;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;font-size:13px;margin-right:3px;display:inline-block;">
-                                Ban
-                            </a>
+                               style="background:#e67e22;color:white;padding:4px 9px;border-radius:5px;text-decoration:none;font-size:13px;margin-right:3px;display:inline-block;">Ban</a>
                         <?php endif; ?>
                         <a href="dashboard.php?delete_member=<?= $m['id'] ?>"
                            onclick="return confirm('Delete <?= htmlspecialchars(addslashes($m['name'])) ?> permanently?')"
-                           style="background:#e74c3c;color:white;padding:5px 10px;border-radius:5px;text-decoration:none;font-size:13px;display:inline-block;">
-                            Delete
-                        </a>
+                           style="background:#e74c3c;color:white;padding:4px 9px;border-radius:5px;text-decoration:none;font-size:13px;display:inline-block;">Delete</a>
+                    </td>
+                </tr>
+                <!-- Edit inline -->
+                <tr id="edit-m-<?= $m['id'] ?>" style="display:none;background:#f0f6ff;">
+                    <td colspan="7" style="padding:12px;">
+                        <strong>Edit Member</strong>
+                        <form method="POST" action="dashboard.php" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+                            <input type="hidden" name="edit_member"  value="1">
+                            <input type="hidden" name="member_id"   value="<?= $m['id'] ?>">
+                            <input type="hidden" name="csrf_token"  value="<?= htmlspecialchars($csrf_token) ?>">
+                            <input type="text"  name="full_name" value="<?= htmlspecialchars($m['name']) ?>" required
+                                   placeholder="Full Name" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+                            <input type="email" name="email" value="<?= htmlspecialchars($m['email']) ?>" required
+                                   placeholder="Email" style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+                            <input type="tel"   name="phone" value="<?= htmlspecialchars($m['phone'] ?? '') ?>"
+                                   placeholder="Phone" style="padding:6px;border:1px solid #ccc;border-radius:4px;width:120px;">
+                            <button type="submit" style="background:#4a90e2;color:white;padding:6px 14px;border:none;border-radius:5px;cursor:pointer;">Save</button>
+                            <button type="button" onclick="this.closest('tr').style.display='none';"
+                                    style="background:#ccc;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;">Cancel</button>
+                        </form>
+                        <details style="margin-top:10px;">
+                            <summary style="cursor:pointer;color:#415A77;font-weight:bold;">📋 Assign / Extend Subscription</summary>
+                            <form method="POST" action="dashboard.php" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+                                <input type="hidden" name="assign_plan" value="1">
+                                <input type="hidden" name="member_id"  value="<?= $m['id'] ?>">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                                <select name="plan_id" required style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+                                    <?php foreach ($allPlans as $ap): ?>
+                                    <option value="<?= $ap['id'] ?>"><?= htmlspecialchars($ap['name']) ?> (<?= number_format($ap['price']) ?> DZD)</option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="date" name="start_date" value="<?= date('Y-m-d') ?>"
+                                       style="padding:6px;border:1px solid #ccc;border-radius:4px;">
+                                <button type="submit" style="background:#6b8e23;color:white;padding:6px 14px;border:none;border-radius:5px;cursor:pointer;">Assign</button>
+                            </form>
+                        </details>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <div style="display:flex;gap:6px;margin-top:15px;flex-wrap:wrap;">
+            <?php for ($pg = 1; $pg <= $total_pages; $pg++): ?>
+            <a href="dashboard.php?page=<?= $pg ?>&filter_plan=<?= urlencode($filter_plan) ?>&filter_status=<?= urlencode($filter_status) ?>&search_member=<?= urlencode($search_member) ?>"
+               style="padding:6px 12px;border-radius:5px;text-decoration:none;
+                      background:<?= $pg===$page?'#415A77':'#ddd' ?>;
+                      color:<?= $pg===$page?'white':'#333' ?>;">
+                <?= $pg ?>
+            </a>
+            <?php endfor; ?>
+        </div>
+        <?php endif; ?>
     </section>
 
     <!-- Chart – identique à ton HTML -->
