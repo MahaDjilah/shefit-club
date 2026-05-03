@@ -1516,7 +1516,7 @@ a{
     background:#778da9b9;
 }
 
-/* --------- ACTION COLUMN (EDIT / DELETE / BAN) --------- */
+/* --------- ACTION COLUMN (EDIT / DELETE) --------- */
 .activity-dashboard th:last-child,
 .activity-dashboard td:last-child {
     width: 220px;
@@ -1527,7 +1527,7 @@ a{
 /* Status column (second to last) */
 .activity-dashboard th:nth-last-child(2),
 .activity-dashboard td:nth-last-child(2) {
-    width: 90px;
+    width: 100px;
     text-align: center;
 }
 

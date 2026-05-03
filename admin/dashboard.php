@@ -213,31 +213,33 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
 
     <!-- Members Management – PHP pur depuis MySQL -->
     <section class="activity-dashboard">
-        <h2>Members (<?= $total_rows ?>)</h2>
+        <h2>Members (<span id="visible-count"><?= $total_rows ?></span>)</h2>
 
-        <!-- Recherche + Filtres -->
-        <form method="GET" action="dashboard.php" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;align-items:center;">
-            <input type="text" name="search_member" value="<?= htmlspecialchars($search_member) ?>"
+        <!-- Live Search + Filtres JS (instantané, sans rechargement) -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;align-items:center;">
+            <input type="text" id="searchMember"
                    placeholder="🔍 Search by name or email"
                    style="padding:8px 12px;border:1px solid #ccc;border-radius:6px;min-width:220px;">
-            <select name="filter_plan" style="padding:8px;border:1px solid #ccc;border-radius:6px;">
-                <option value="All" <?= $filter_plan==='All'?'selected':'' ?>>All Plans</option>
+            <select id="filterPlan" style="padding:8px;border:1px solid #ccc;border-radius:6px;">
+                <option value="All">All Plans</option>
                 <?php foreach ($allPlans as $ap): ?>
-                <option value="<?= htmlspecialchars($ap['name']) ?>" <?= $filter_plan===$ap['name']?'selected':'' ?>>
+                <option value="<?= htmlspecialchars($ap['name']) ?>">
                     <?= htmlspecialchars($ap['name']) ?>
                 </option>
                 <?php endforeach; ?>
             </select>
-            <select name="filter_status" style="padding:8px;border:1px solid #ccc;border-radius:6px;">
-                <option value="All"    <?= $filter_status==='All'   ?'selected':'' ?>>All Status</option>
-                <option value="active" <?= $filter_status==='active'?'selected':'' ?>>Active</option>
-                <option value="banned" <?= $filter_status==='banned'?'selected':'' ?>>Banned</option>
+            <select id="filterStatus" style="padding:8px;border:1px solid #ccc;border-radius:6px;">
+                <option value="All">All Status</option>
+                <option value="active">Active</option>
+                <option value="banned">Banned</option>
             </select>
-            <button type="submit" style="background:#415A77;color:white;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;">Filter</button>
-            <?php if ($search_member || $filter_plan!=='All' || $filter_status!=='All'): ?>
-            <a href="dashboard.php" style="background:#aaa;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;">Clear</a>
-            <?php endif; ?>
-        </form>
+            <span id="member-count"
+                  style="padding:8px 14px;background:#415A77;color:white;border-radius:6px;font-weight:bold;">
+                <?= $total_rows ?> member(s)
+            </span>
+            <button onclick="document.getElementById('searchMember').value='';document.getElementById('filterPlan').value='All';document.getElementById('filterStatus').value='All';filterMembers();"
+                    style="background:#aaa;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;">Clear</button>
+        </div>
 
         <!-- Bouton Add Member -->
         <button onclick="document.getElementById('add-member-form').style.display='block';this.style.display='none';"
@@ -292,7 +294,11 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
                     <tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">No members found.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($membersFromDB as $m): ?>
-                <tr>
+                <tr class="member-row"
+                    data-name="<?= strtolower(htmlspecialchars($m['name'])) ?>"
+                    data-email="<?= strtolower(htmlspecialchars($m['email'])) ?>"
+                    data-plan="<?= htmlspecialchars($m['plan']) ?>"
+                    data-status="<?= htmlspecialchars($m['status'] ?? 'active') ?>">
                     <td><?= htmlspecialchars($m['name']) ?></td>
                     <td><?= htmlspecialchars($m['email']) ?></td>
                     <td><?= htmlspecialchars($m['phone'] ?? '-') ?></td>
@@ -437,6 +443,50 @@ $membersJson = json_encode($membersForJS, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HE
 
 </main>
 </div>
+
+<!-- Live search + filter JS sur les lignes PHP du tableau -->
+<script>
+function filterMembers() {
+    const search = (document.getElementById('searchMember').value || '').toLowerCase().trim();
+    const plan   = document.getElementById('filterPlan').value;
+    const status = document.getElementById('filterStatus').value;
+
+    const rows   = document.querySelectorAll('.member-row');
+    let visible  = 0;
+
+    rows.forEach(row => {
+        const name  = row.dataset.name  || '';
+        const email = row.dataset.email || '';
+        const rPlan = row.dataset.plan  || '';
+        const rStat = row.dataset.status || 'active';
+
+        const matchSearch = !search || name.includes(search) || email.includes(search);
+        const matchPlan   = plan === 'All'   || rPlan === plan;
+        const matchStatus = status === 'All' || rStat === status;
+
+        // Also hide the edit row below it
+        const editRow = row.nextElementSibling;
+        if (matchSearch && matchPlan && matchStatus) {
+            row.style.display = '';
+            visible++;
+        } else {
+            row.style.display = 'none';
+            if (editRow && editRow.id && editRow.id.startsWith('edit-m-')) {
+                editRow.style.display = 'none';
+            }
+        }
+    });
+
+    const countEl = document.getElementById('visible-count');
+    const badgeEl = document.getElementById('member-count');
+    if (countEl) countEl.textContent = visible;
+    if (badgeEl) badgeEl.textContent = visible + ' member(s)';
+}
+
+document.getElementById('searchMember').addEventListener('input',  filterMembers);
+document.getElementById('filterPlan').addEventListener('change',   filterMembers);
+document.getElementById('filterStatus').addEventListener('change', filterMembers);
+</script>
 
 <!-- Injection des membres MySQL dans localStorage avant admin-script.js -->
 <script>
