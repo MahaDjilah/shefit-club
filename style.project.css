@@ -1516,18 +1516,19 @@ a{
     background:#778da9b9;
 }
 
-/* --------- ACTION COLUMN (EDIT / DELETE) --------- */
+/* --------- ACTION COLUMN (EDIT / DELETE / BAN) --------- */
 .activity-dashboard th:last-child,
 .activity-dashboard td:last-child {
-    width: 150px;
+    width: 220px;
     text-align: center;
+    white-space: nowrap;
 }
 
-/* BUTTONS INSIDE LAST COLUMN */
-.activity-dashboard td:last-child {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
+/* Status column (second to last) */
+.activity-dashboard th:nth-last-child(2),
+.activity-dashboard td:nth-last-child(2) {
+    width: 90px;
+    text-align: center;
 }
 
 /* EDIT BUTTON */
